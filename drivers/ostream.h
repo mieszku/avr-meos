@@ -7,19 +7,23 @@
 
 #include <inttypes.h>
 
+#include "object.h"
+
+#define OSTREAM(x)	((ostream_t*) (x))
+
 typedef struct ostream_t	ostream_t;
 typedef struct ostreamvt_t	ostreamvt_t;
 
 struct ostream_t
 {
-	ostreamvt_t*	vtable;
+	object_t	object;
 };
 
 struct ostreamvt_t
 {
-	void	(*destruct)	(ostream_t*	object);
-	void	(*put_char)	(ostream_t*	object,
-				 char		chr);
+	objectvt_t	objectvt;
+	void		(*put_char)	(ostream_t*	object,
+					 char		chr);
 };
 
 void		ostreamvt_init		(ostreamvt_t*	vtable);
@@ -36,8 +40,6 @@ void		ostream_put_int32	(ostream_t*	object,
 					 int32_t	integer);
 void		ostream_put_uint32	(ostream_t*	object,
 					 uint32_t	uinteger);
-
-
 
 static void	ostream_put_char	(ostream_t*	object,
 					 char 		chr);

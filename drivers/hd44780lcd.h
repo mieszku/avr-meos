@@ -7,6 +7,7 @@
 
 #include <inttypes.h>
 
+#include "object.h"
 #include "hd44780.h"
 #include "hd44780itf.h"
 #include "ostream.h"
@@ -19,15 +20,14 @@ enum lcd_type_t
 	LCD4X20
 };
 
+#define HD44780LCD(x)		((hd44780lcd_t*) (x))
+
 typedef struct hd44780lcd_t	hd44780lcd_t;
 typedef struct hd44780lcdvt_t	hd44780lcdvt_t;
 
 struct hd44780lcd_t
 {
-	union {
-		ostream_t	ostream;
-		hd44780lcdvt_t*	vtable;
-	};
+	ostream_t	ostream;
 
 	hd44780_t	_hd44780;
 
@@ -40,10 +40,7 @@ struct hd44780lcd_t
 
 struct hd44780lcdvt_t
 {
-	union {
-		ostreamvt_t	ostreamvt;
-		void		(*destruct)	(hd44780lcd_t*	object);
-	};
+	ostreamvt_t	ostreamvt;
 };
 
 void		hd44780lcdvt_init	(hd44780lcdvt_t*	vtable);

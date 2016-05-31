@@ -7,12 +7,15 @@
 
 #include "ostream.h"
 
+#define VTABLE(x)	((ostreamvt_t*) OBJECT_VTABLE (x))
+
 static inline 
-void ostream_put_char (ostream_t* object,
+void ostream_put_char (ostream_t* this,
 		       char 	  chr)
 {
-	object->vtable->put_char (object, chr);
+	VTABLE (this)->put_char (this, chr);
 }
 
+#undef VTABLE
 
 #endif

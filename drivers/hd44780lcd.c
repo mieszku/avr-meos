@@ -19,10 +19,14 @@ static void __init_vtable (void)
 	hd44780lcdvt_init (&hd44780lcdvt);
 }
 
+
 void hd44780lcdvt_init (hd44780lcdvt_t* vtable)
 {
 	ostreamvt_init (&vtable->ostreamvt);
-	vtable->ostreamvt.put_char = 
+	((objectvt_t*) vtable)->destruct =
+		(void (*) (object_t*))
+		hd44780lcd_destruct;
+	((ostreamvt_t*) vtable)->put_char = 
 		(void (*) (ostream_t*, char)) hd44780lcd_put_char;
 }
 
@@ -31,7 +35,7 @@ void hd44780lcd_construct (hd44780lcd_t* this,
 			   lcd_type_t	 lcd_type)
 {
 	ostream_construct (&this->ostream);
-	this->vtable = &hd44780lcdvt;
+	OBJECT_VTABLE (this) = (objectvt_t*) &hd44780lcdvt;
 
 	hd44780_construct (&this->_hd44780,
 			   interface);
@@ -63,8 +67,8 @@ void hd44780lcd_construct (hd44780lcd_t* this,
 
 void hd44780lcd_destruct (hd44780lcd_t* this)
 {
-	object_destruct (&this->_hd44780);
-	ostream_destruct (&this->ostream);
+	hd44780_destruct (&this->_hd44780);
+	ostream_destruct (OSTREAM (this));
 }
 
 void hd44780lcd_clear (hd44780lcd_t* this)

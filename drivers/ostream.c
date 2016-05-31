@@ -4,8 +4,6 @@
 
 #include "ostream.h"
 
-extern void __c_object_pure_virtual (void);
-
 
 static ostreamvt_t ostreamvt;
 
@@ -17,21 +15,24 @@ static void __init_vtable (void)
 
 void ostreamvt_init (ostreamvt_t* vtable)
 {
-	vtable->destruct = ostream_destruct;
-	vtable->put_char = 
-		(void (*) (ostream_t*, char)) __c_object_pure_virtual;
+	((objectvt_t*) vtable)->destruct = DESTRUCTOR (ostream_destruct);
+		
+	vtable->put_char = (void (*) (ostream_t*, char)) 
+		object_pure_virtual;
 }
 
 
 
 void ostream_construct (ostream_t* this)
 {
-	this->vtable = &ostreamvt;
+	object_construct (OBJECT (this));
+
+	OBJECT_VTABLE (this) = (objectvt_t*) &ostreamvt;
 }
 
 void ostream_destruct (ostream_t* this)
 {
-	/* nothing to do */
+	object_destruct (OBJECT (this));
 }
 
 void ostream_put_string (ostream_t*  this,

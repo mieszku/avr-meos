@@ -17,7 +17,7 @@
 static hd44780gpiovt_t hd44780gpiovt;
 
 __attribute__ ((constructor))
-void __init_vtable (void)
+static void __init_vtable (void)
 {
 	hd44780gpiovt_init (&hd44780gpiovt);
 }
@@ -25,16 +25,21 @@ void __init_vtable (void)
 void hd44780gpiovt_init (hd44780gpiovt_t* vtable)
 {
 	hd44780itfvt_init (&vtable->hd44780itfvt);
-	vtable->destruct = hd44780gpio_destruct;
+
+	((objectvt_t*) vtable)->destruct =
+		(void (*) (object_t*)) hd44780gpio_destruct;
 
 	vtable->hd44780itfvt.set_interface_mode = 
-		(void (*) (hd44780itf_t*, uint8_t)) hd44780gpio_set_interface_mode;
+		(void (*) (hd44780itf_t*, uint8_t)) 
+		hd44780gpio_set_interface_mode;
 	
 	vtable->hd44780itfvt.write =
-		(void (*) (hd44780itf_t*, uint8_t, uint8_t)) hd44780gpio_write;
+		(void (*) (hd44780itf_t*, uint8_t, uint8_t)) 
+		hd44780gpio_write;
 	
 	vtable->hd44780itfvt.read =
-		(uint8_t (*) (hd44780itf_t*, uint8_t)) hd44780gpio_read;
+		(uint8_t (*) (hd44780itf_t*, uint8_t)) 
+		hd44780gpio_read;
 }
 
 void hd44780gpio_construct (hd44780gpio_t* this,
@@ -51,7 +56,7 @@ void hd44780gpio_construct (hd44780gpio_t* this,
 			    uint16_t       db7)
 {
 	hd44780itf_construct (&this->hd44780itf);
-	this->vtable = &hd44780gpiovt;
+	OBJECT_VTABLE (this) = (objectvt_t*) &hd44780gpiovt;
 
 	this->_gpio_mode = GPIO_UNDEFINED;
 	this->_rs = rs;

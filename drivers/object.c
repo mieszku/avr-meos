@@ -4,25 +4,33 @@
 
 #include <panic.h>
 
-typedef struct object_t		object_t;
-typedef struct objectvt_t	objectvt_t;
+#include "object.h"
 
-struct object_t
-{
-	objectvt_t*	vtable;
-};
+static objectvt_t objectvt;
 
-struct objectvt_t
+__attribute__ ((constructor))
+static void __init_vtable (void)
 {
-	void	(*destruct)	(object_t*	object_t);
-};
-
-void __c_object_pure_virtual (void)
-{
-	enter_panic (ERROR_PURE_VIRTUAL);
+	objectvt_init (&objectvt);
 }
 
-void object_destruct (void* object)
+
+void objectvt_init (objectvt_t* vtable)
 {
-	((object_t*) object)->vtable->destruct ((object_t*) object);
+	vtable->destruct = object_destruct;
+}
+
+void object_construct (object_t* this)
+{
+	this->vtable = &objectvt;
+}
+
+void object_destruct (object_t* object)
+{
+	/* nothing to do */
+}
+
+void object_pure_virtual (object_t* this)
+{
+	enter_panic (ERROR_PURE_VIRTUAL);
 }

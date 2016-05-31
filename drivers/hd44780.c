@@ -14,7 +14,10 @@ static void __init_vt (void)
 
 void hd44780vt_init (hd44780vt_t* vtable)
 {
-	vtable->destruct = hd44780_destruct;
+	objectvt_init ((objectvt_t*) vtable);
+
+	((objectvt_t*) vtable)->destruct = 
+		(void (*) (object_t*)) hd44780_destruct;
 }
 
 
@@ -22,13 +25,14 @@ void hd44780vt_init (hd44780vt_t* vtable)
 void hd44780_construct (hd44780_t*    this,
 			hd44780itf_t* interface)
 {
-	this->vtable = &hd44780vt;
+	object_construct (OBJECT (this));
+	OBJECT_VTABLE (this) = (objectvt_t*) &hd44780vt;
 	this->_interface = interface;
 }
 
 void hd44780_destruct (hd44780_t* this)
 {
-	/* nothing to do */
+	object_destruct (OBJECT (this));
 }
 
 void hd44780_display_clear (hd44780_t* this)

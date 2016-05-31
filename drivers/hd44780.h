@@ -7,6 +7,7 @@
 
 #include <inttypes.h>
 
+#include "object.h"
 #include "hd44780itf.h"
 
 #define INTERFACE_MODE_4BIT	0
@@ -29,19 +30,23 @@
 #define MATRIX_5X7		0
 #define MATRIX_5X10		1
 
+#define HD44780(x)		((hd44780_t*) (x))
+
 typedef struct hd44780_t	hd44780_t;
 typedef struct hd44780vt_t	hd44780vt_t;
 
 struct hd44780_t
 {
-	hd44780vt_t*	vtable;
+	object_t	object;
 	hd44780itf_t*	_interface;
 };
 
 struct hd44780vt_t
 {
-	void	(*destruct)	(hd44780_t*	object);
+	objectvt_t	objectvt;
 };
+
+
 
 void	hd44780vt_init		(hd44780vt_t*	vtable);
 

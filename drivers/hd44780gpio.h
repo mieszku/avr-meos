@@ -5,17 +5,17 @@
 #ifndef __HD44780GPIO_H
 #define __HD44780GPIO_H
 
+#include "object.h"
 #include "hd44780itf.h"
+
+#define HD44780GPIO(x)		((hd44780gpio_t*) (x))
 
 typedef struct hd44780gpio_t	hd44780gpio_t;
 typedef struct hd44780gpiovt_t	hd44780gpiovt_t;
 
 struct hd44780gpio_t
 {
-	union {
-		hd44780itf_t		hd44780itf;
-		hd44780gpiovt_t*	vtable;
-	};
+	hd44780itf_t	hd44780itf;
 
 	uint8_t		_gpio_mode;
 	uint8_t		_itfmode;
@@ -27,10 +27,7 @@ struct hd44780gpio_t
 
 struct hd44780gpiovt_t
 {
-	union {
-		hd44780itfvt_t	hd44780itfvt;
-		void		(*destruct)	(hd44780gpio_t*	object);
-	};
+	hd44780itfvt_t	hd44780itfvt;
 };
 
 void	hd44780gpiovt_init		(hd44780gpiovt_t*	vtable);
