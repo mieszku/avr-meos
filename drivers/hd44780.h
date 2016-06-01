@@ -48,33 +48,35 @@ struct hd44780vt_t
 
 
 
-void	hd44780vt_init		(hd44780vt_t*	vtable);
+void		hd44780vt_init		(hd44780vt_t*	vtable);
 
-void	hd44780_construct	(hd44780_t*	object,
-				 hd44780itf_t*	interface);
-void	hd44780_destruct	(hd44780_t*	object);
-void	hd44780_display_clear	(hd44780_t*	object);
-void	hd44780_cursor_home	(hd44780_t*	object);
-void	hd44780_entry_mode_set	(hd44780_t*	object,
-				 uint8_t	entry_mode,
-				 uint8_t	entry_direction);
-void	hd44780_display_set	(hd44780_t*	object,
-				 uint8_t	display,
-				 uint8_t	cursor);
-void	hd44780_shift		(hd44780_t*	object,
-				 uint8_t	shift_mode,
-				 uint8_t	shift_direction);
-void	hd44780_function_set	(hd44780_t*	object,
-				 uint8_t	interface_mode,
-				 uint8_t	line_mode,
-				 uint8_t	matrix);
-void	hd44780_cg_ram_set	(hd44780_t*	object,
-				 uint8_t	addr);
-void	hd44780_dd_ram_set	(hd44780_t*	object,
-				 uint8_t	addr);
-uint8_t	hd44780_busy_flag_read	(hd44780_t*	object);
-uint8_t	hd44780_data_read	(hd44780_t*	object);
-void	hd44780_data_write	(hd44780_t*	object,
-				 uint8_t	data);
+hd44780_t*	hd44780_new		(hd44780itf_t*	interface);
+void		hd44780_construct	(hd44780_t*	object,
+					 hd44780itf_t*	interface);
+void		hd44780_destruct	(hd44780_t*	object);
+
+void		hd44780_display_clear	(hd44780_t*	object);
+void		hd44780_cursor_home	(hd44780_t*	object);
+void		hd44780_entry_mode_set	(hd44780_t*	object,
+					 uint8_t	entry_mode,
+					 uint8_t	entry_direction);
+void		hd44780_display_set	(hd44780_t*	object,
+					 uint8_t	display,
+					 uint8_t	cursor);
+void		hd44780_shift		(hd44780_t*	object,
+				 	 uint8_t	shift_mode,
+					 uint8_t	shift_direction);
+void		hd44780_function_set	(hd44780_t*	object,
+					 uint8_t	interface_mode,
+					 uint8_t	line_mode,
+					 uint8_t	matrix);
+void		hd44780_cg_ram_set	(hd44780_t*	object,
+					 uint8_t	addr);
+void		hd44780_dd_ram_set	(hd44780_t*	object,
+					 uint8_t	addr);
+uint8_t		hd44780_busy_flag_read	(hd44780_t*	object);
+uint8_t		hd44780_data_read	(hd44780_t*	object);
+void		hd44780_data_write	(hd44780_t*	object,
+					 uint8_t	data);
 
 #endif

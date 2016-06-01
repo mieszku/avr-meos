@@ -30,6 +30,7 @@ void		ostreamvt_init		(ostreamvt_t*	vtable);
 
 void		ostream_construct	(ostream_t*	object);
 void		ostream_destruct	(ostream_t*	object);
+
 void		ostream_put_string	(ostream_t*	object,
 					 const char*	str);
 void		ostream_put_int		(ostream_t*	object,

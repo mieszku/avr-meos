@@ -4,6 +4,8 @@
 
 #include "hd44780.h"
 
+#include <memalloc.h>
+
 static hd44780vt_t hd44780vt;
 
 __attribute__ ((constructor))
@@ -21,6 +23,12 @@ void hd44780vt_init (hd44780vt_t* vtable)
 }
 
 
+hd44780_t* hd44780_new (hd44780itf_t* interface)
+{
+	hd44780_t* instance = xmemalloc (sizeof (hd44780_t));
+	hd44780_construct (instance, interface);
+	return instance;
+}
 
 void hd44780_construct (hd44780_t*    this,
 			hd44780itf_t* interface)
@@ -32,6 +40,7 @@ void hd44780_construct (hd44780_t*    this,
 
 void hd44780_destruct (hd44780_t* this)
 {
+	object_unref (this->_interface);
 	object_destruct (OBJECT (this));
 }
 

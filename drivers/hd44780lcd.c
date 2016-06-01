@@ -7,6 +7,7 @@
 #include "object.h"
 
 #include <panic.h>
+#include <memalloc.h>
 
 static uint8_t real_addr (hd44780lcd_t*);
 
@@ -28,6 +29,15 @@ void hd44780lcdvt_init (hd44780lcdvt_t* vtable)
 		hd44780lcd_destruct;
 	((ostreamvt_t*) vtable)->put_char = 
 		(void (*) (ostream_t*, char)) hd44780lcd_put_char;
+}
+
+
+hd44780lcd_t* hd44780lcd_new (hd44780itf_t* interface,
+			      lcd_type_t    lcd_type)
+{
+	hd44780lcd_t* instance = xmemalloc (sizeof (hd44780lcd_t));
+	hd44780lcd_construct (instance, interface, lcd_type);
+	return instance;
 }
 
 void hd44780lcd_construct (hd44780lcd_t* this,

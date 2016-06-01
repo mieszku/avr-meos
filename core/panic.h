@@ -7,6 +7,6 @@
 
 #include "error.h"
 
-void	enter_panic	(error_t	error);
+void	enter_panic	(error_t	error) __attribute__ ((noreturn));
 
 #endif

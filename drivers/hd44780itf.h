@@ -35,6 +35,7 @@ struct hd44780itfvt_t
 void		hd44780itfvt_init		(hd44780itfvt_t*	vtable);
 void		hd44780itf_construct		(hd44780itf_t*		object);
 void		hd44780itf_destruct		(hd44780itf_t*		object);
+
 static void	hd44780itf_set_interface_mode	(hd44780itf_t*		object,
 						 uint8_t		itfmode);
 static void	hd44780itf_write		(hd44780itf_t*		object,
