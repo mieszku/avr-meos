@@ -29,8 +29,10 @@ void thread (void)
 
 	while (1) {
 		hd44780lcd_set_position (&lcd, 1, 4);
+
 		ostream_put_string (&lcd.ostream, "time: ");
 		ostream_put_uint32 (&lcd.ostream, i++);
+
 		gpio_toggle (GPIO_PIN13);
 		_delay_ms (900);
 		_switch ();
