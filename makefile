@@ -6,7 +6,7 @@ PROJ		= meos
 PORT		= /dev/ttyACM0
 PROG		= arduino
 MCU		= atmega328p
-FCPU		= 4000000
+FCPU		= 16000000
 
 ############################
 
