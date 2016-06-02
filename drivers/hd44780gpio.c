@@ -134,7 +134,7 @@ static void write_byte (hd44780gpio_t* this,
 	
 	gpio_write (this->_en, GPIO_LOW);
 
-	_delay_ms (10);
+	_delay_ms (2);
 }
 
 void hd44780gpio_write (hd44780gpio_t* this,

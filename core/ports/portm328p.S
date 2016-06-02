@@ -11,6 +11,9 @@ rnull	= 1
 .global __hwport_init
 .global __hwport_sync_clock
 
+.global	__vector_11
+.global __vector_12
+
 OCRA	= ((F_CPU/1000/PRESC)-1)
 
 #if	(__system_timer__ == 1)
@@ -49,15 +52,25 @@ PRESC	= 8
 		sts	OCR1AH,	r19
 		sts	OCR1AL,	r18
 
-		ldi	r18,	OCIE1A
+		ldi	r18,	lo8(OCRA/2)
+		ldi	r19,	hi8(OCRA/2)
+		sts	OCR1BH,	r19
+		sts	OCR1BL,	r18
+
+		ldi	r18,	OCIE1A|OCIE1B
 		sts	TIMSK1,	r18
-		ret
+		reti
 	
 	__hwport_sync_clock:
 		ret
 	
 	__vector_11:
+		sei
 		jmp	__system_clock_mono
+	
+	__vector_12:
+		sei
+		jmp	__system_clock_synced
 #else
 	#error unsupported system timer
 #endif

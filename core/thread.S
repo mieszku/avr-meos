@@ -4,12 +4,12 @@
 
 #include "thread.S.h"
 
-rtmp	= 0
-rnull	= 1
-
-sreg	= 0x3F
 spl	= 0x3D
 sph	= 0x3E
+sreg	= 0x3F
+
+rtmp	= 0
+rnull	= 1
 
 .macro	push_context
 	push	r0
@@ -44,13 +44,13 @@ sph	= 0x3E
 	push	r29
 	push	r30
 	push	r31
-	in	rtmp,	sreg
-	push	rtmp
+	in	r0,	sreg
+	push	r0
 .endm
 
 .macro	pop_context
-	pop	rtmp
-	out	sreg,	rtmp
+	pop	r0
+	out	sreg,	r0
 	pop	r31
 	pop	r30
 	pop	r29
@@ -85,134 +85,146 @@ sph	= 0x3E
 	pop	r0
 .endm
 
-.global thread_current
+.global	thread_current
+.global	thread_main
+
+current	= thread_current
 
 .section .data
-	current:
-	thread_current:
-		.word	current
-		.word	current
-		.word	0	; stack
-		.word	0	; stack end
+	mainname:
+		.byte	'm'
+		.byte	'a'
+		.byte	'i'
+		.byte	'n'
+		.byte	0
+
+	thread_main:
+		.word	thread_main
+		.word	thread_main
+		.word	0	; sptr
+		.word	0	; spnd
 		.byte	0	; flags
 		.byte	0	; pending
-		.word	name
+		.word	mainname
 	
-	name:
-		.byte 'm'
-		.byte 'a'
-		.byte 'i'
-		.byte 'n'
-		.byte 0
-		
-.global thread_exec
-.global thread_kill
-.global	thread_fork
+	thread_current:
+		.word	thread_main
 
-.global _switch
+
+.global	thread_exec
+.global	thread_kill
+
+.global	__thread_yield
 
 .section .text
 	thread_exec:
-		; r24-r25 run
-		; r22-r23 obj
-		; r20-r22 name
-		; r18-r19 thread
-		; r16-r17 stack
-		; r14-r15 size
-		push	r6
-		push	r7
-		push	r8
-		push	r9
-		push	r10
-		push	r11
-		push	r12
-		push	r13
+		;	r24-r25:	run
+		;	r22-r23:	obj
+		;	r20-r21:	name
+		;	r18-r19:	thread
+		;	r16-r17:	stack
+		;	r14-r17:	size
+		push	r28
+		push	r29
 
-		movw	r12,	r24	; run
-		movw	r10,	r22	; obj
-		movw	r8,	r20	; name
-		movw	r6,	r18	; thread
+		movw	r6,	r18
+		movw	r8,	r20
+		movw	r10,	r22
+		movw	r12,	r24
 
-		movw	r24,	r16
-		add	r24,	r14
-		adc	r25,	r15
-		sbiw	r24,	1
-		rcall	thread_fork
+		movw	r26,	r16
+		add	r26,	r14
+		adc	r27,	r15
+		sbiw	r26,	1
 
-		cpse	r24,	rnull
+		call	system_enter_critical
+
+		rcall	_fork
+		cpse	r26,	rnull
 		rjmp	.Lchild
 
-		movw	r30,	r6
-		std	Z+OFF_SPTRL,	r22
-		std	Z+OFF_SPTRH,	r23
-		
-		movw	r24,	r6
+		movw	r28,	r18
+		subi	r16,	lo8(-STC_MARGIN)
+		sbci	r17,	hi8(-STC_MARGIN)
+
+		std	Y+OFF_SPTRL,	r30
+		std	Y+OFF_SPTRH,	r31
+		std	Y+OFF_SPNDL,	r16
+		std	Y+OFF_SPNDH,	r17
+		std	Y+OFF_NAMEL,	r20
+		std	Y+OFF_NAMEH,	r21
+
+		movw	r24,	r18
 		rcall	_insert_node
-		
-		pop	r13
-		pop	r12
-		pop	r11
-		pop	r10
-		pop	r9
-		pop	r8
-		pop	r7
-		pop	r6
-		ret
+		movw	r24,	r18
+
+		pop	r29
+		pop	r28
+		jmp	system_exit_critical
 	.Lchild:
-		call	foo
 		movw	r30,	r12
 		movw	r24,	r10
 		icall
-		ret
+		rjmp	thread_kill
 
-	thread_fork:
-		pop	r19
-		pop	r18
-		push	r18
-		push	r19
-		in	r20,	spl
-		in	r21,	sph
-		out	spl,	r24
-		out	sph,	r25
-		push	r18
-		push	r19
-		ser	r24
-		ser	r25
+	_fork:	; takes new stack pointer in r26:27
+		; returns stack pointer in r30:r31
+		; and clr r26
+		pop	r31
+		pop	r30
+		push	r30
+		push	r31
+
+		push	r2
+		push	r3
+		in	r2,	spl
+		in	r3,	sph
+
+		out	spl,	r26
+		out	sph,	r27
+		push	r30
+		push	r31
+		ser	r26
 		push_context
-		in	r22,	spl
-		in	r23,	sph
-		clr	r24
-		clr	r25
-		out	spl,	r20
-		out	sph,	r21
+		clr	r26
+		in	r30,	spl
+		in	r31,	sph
+
+		out	spl,	r2
+		out	sph,	r3
+		pop	r3
+		pop	r2
 		ret
 
 	thread_kill:
 		ret
-	
-	_switch:
+
+	__thread_yield:
 		push_context
+		clr	rnull
+
+		in	r2,	spl
+		in	r3,	sph
 		lds	r28,	current
 		lds	r29,	current+1
-		in	r20,	spl
-		in	r21,	sph
-		std	Y+OFF_SPTR,	r20
-		std	Y+OFF_SPTR+1,	r21
 
-		ldd	r30,	Y+OFF_NEXT
-		ldd	r31,	Y+OFF_NEXT+1
-		movw	r30,	r28
-		ldd	r20,	Z+OFF_SPTR
-		ldd	r21,	Z+OFF_SPTR+1
-
-		out	spl,	r20
-		out	sph,	r21
+		std	Y+OFF_SPTRL,	r2
+		std	Y+OFF_SPTRH,	r3
+		ldd	r30,	Y+OFF_NEXTL
+		ldd	r31,	Y+OFF_NEXTH
+		ldd	r4,	Z+OFF_SPTRL
+		ldd	r5,	Z+OFF_SPTRH
 		sts	current,	r30
 		sts	current+1,	r31
-		pop_context
-		ret
+		out	spl,	r4
+		out	sph,	r5
 
+		pop_context
+		jmp	__system_awake
+	
 	_insert_node:
+		; takes pointer to thread at r24:r25
+		; uses r26:r27
 		push	r28
 		push	r29
 
@@ -220,18 +232,37 @@ sph	= 0x3E
 		lds	r31,	current+1
 		ldd	r28,	Z+OFF_PREVL
 		ldd	r29,	Z+OFF_PREVH
-
 		std	Y+OFF_NEXTL,	r24
 		std	Y+OFF_NEXTH,	r25
 		std	Z+OFF_PREVL,	r24
 		std	Z+OFF_PREVH,	r25
-		movw	r18,	r30
+		movw	r26,	r30
 		movw	r30,	r24
-
 		std	Z+OFF_PREVL,	r28
 		std	Z+OFF_PREVH,	r29
-		std	Z+OFF_NEXTL,	r18
-		std	Z+OFF_NEXTH,	r19
+		std	Z+OFF_NEXTL,	r26
+		std	Z+OFF_NEXTH,	r27
+
+		pop	r29
+		pop	r28
+		ret
+	
+	_remove_node:
+		; takes pointer to thread at r24:r25
+		; uses r26:r27
+		push	r28
+		push	r29
+
+		movw	r28,	r24
+		ldd	r26,	Y+OFF_PREVL
+		ldd	r27,	Y+OFF_PREVH
+		ldd	r30,	Y+OFF_NEXTL
+		ldd	r31,	Y+OFF_NEXTH
+		movw	r28,	r26
+		std	Y+OFF_NEXTL,	r30
+		std	Y+OFF_NEXTH,	r31
+		std	Z+OFF_PREVL,	r28
+		std	Z+OFF_PREVH,	r29
 
 		pop	r29
 		pop	r28

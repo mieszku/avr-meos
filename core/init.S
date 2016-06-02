@@ -7,3 +7,4 @@
 		call	__hwport_init
 
 .section .fini8
+	call	thread_kill

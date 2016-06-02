@@ -5,6 +5,8 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
+#include <inttypes.h>
+
 typedef void (*thread_func_t) (void*);
 
 typedef struct thread_t thread_t;
@@ -20,6 +22,9 @@ struct thread_t
 
 	const char*	name;
 } __attribute__ ((packed));
+
+extern const thread_t* const 	thread_current;
+extern const thread_t		thread_main;
 
 thread_t*	thread_exec	(thread_func_t	run,
 				 void*		obj,
