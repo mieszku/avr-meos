@@ -13,15 +13,15 @@ rnull	= 1
 	mutex_lock:
 		movw	r26,	r24
 	.Ltryacquire:
-		call	system_enter_critical
+		call	__hwport_set_en_mon
 		ld	rtmp,	X
 		cpse	rtmp,	rnull
 		rjmp	.Ltryagain
 		com	rtmp
 		st	X,	rtmp
-		jmp	system_exit_critical
+		call	__hwport_set_en_both
+		jmp	__hwport_chk_int_syn
 	.Ltryagain:
-		call	system_exit_critical
 		call	system_yield
 		rjmp	.Ltryacquire
 		ret
