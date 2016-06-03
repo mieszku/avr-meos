@@ -26,12 +26,21 @@ struct thread_t
 extern const thread_t* const 	thread_current;
 extern const thread_t		thread_main;
 
-thread_t*	thread_exec	(thread_func_t	run,
-				 void*		obj,
-				 const char*	name,
-				 thread_t*	thread,
-				 void*		stack,
-				 uint16_t	size);
+thread_t*	thread_exec		(thread_func_t	run,
+					 void*		obj,
+					 const char*	name,
+					 thread_t*	thread,
+					 void*		stack,
+					 uint16_t	size);
+thread_t*	thread_run		(thread_func_t	run,
+					 void*		obj,
+					 const char*	name,
+					 void*		mem,
+					 uint16_t	size);
+thread_t*	thread_run_alloc	(thread_func_t	run,
+					 void*		obj,
+					 const char*	name,
+					 uint16_t	stsize);
 void		thread_kill	(void) __attribute__ ((noreturn));
 
 #endif

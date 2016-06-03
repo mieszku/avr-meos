@@ -55,6 +55,14 @@ uint8_t unlock0 (void* obj)
 	return 1;
 }
 
+void blink (void* obj)
+{
+	while (1) {
+		system_sleep (397);
+		gpio_toggle (GPIO_PIN7);
+	}
+}
+
 int main (void)
 {
 	system_sleep (1000);
@@ -71,6 +79,11 @@ int main (void)
 	static thread_t thr;
 
 	thread_exec (thread, NULL, "thread", &thr, st, 100);
+	thread_run_alloc (blink, NULL, "blink", 40);
+	thread_run_alloc (blink, NULL, "blink", 40);
+	thread_run_alloc (blink, NULL, "blink", 40);
+	thread_run_alloc (blink, NULL, "blink", 40);
+	thread_run_alloc (blink, NULL, "blink", 40);
 	
 	task_register (unlock0, NULL, 5000, 500);
 		
