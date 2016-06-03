@@ -9,6 +9,7 @@ rnull	= 1
 rtmp	= 0
 
 .global	system_get_time
+.global	system_sleep
 .global system_yield
 .global	system_enter_critical
 .global	system_exit_critical
@@ -54,6 +55,41 @@ rtmp	= 0
 		ror	r22
 		#endif
 		ret
+	
+	system_sleep:
+		#ifdef __system_timer_x2__
+		lsl	r24
+		rol	r25
+		#endif
+		movw	r26,	r24
+		rcall	_get_time
+		push	r10
+		push	r11
+		push	r12
+		push	r13
+		movw	r10,	r22
+		movw	r12,	r24
+		add	r10,	r26
+		adc	r11,	r27
+		adc	r12,	rnull
+		adc	r13,	rnull
+	.Lsleep:
+		rcall	_get_time
+		cp	r22,	r10
+		cpc	r23,	r11
+		cpc	r24,	r12
+		cpc	r25,	r13
+		brsh	.Lwakeup
+		rcall	system_yield
+		rjmp	.Lsleep
+	.Lwakeup:
+		pop	r13
+		pop	r12
+		pop	r11
+		pop	r10
+		ret
+
+
 
 	system_yield:
 		jmp	__hwport_sync_clock

@@ -37,9 +37,6 @@ void thread (void* obj)
 		ostream_put_string (OSTREAM (lcd), " ");
 		ostream_put_string (OSTREAM (lcd), thread_current->name);
 		gpio_toggle (GPIO_PIN13);
-		//system_exit_critical ();
-
-		//system_yield ();
 	}
 }
 
@@ -60,8 +57,6 @@ int main (void)
 
 	thread_exec (thread, NULL, "thread", &thr, st, 100);
 		
-	long time = 0;
-
 	while (1) {
 		/*
 		hd44780lcd_set_position (lcd, 2, 8);
@@ -69,10 +64,7 @@ int main (void)
 		ostream_put_char (OSTREAM (lcd), ' ');
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time ());
 		*/
-		while (system_get_time () < time);
-		time += 500;
-		while (system_get_time () < time) system_yield ();
-		time += 500;
+		system_sleep (1000);
 		gpio_toggle (GPIO_PIN7);
 
 		system_yield ();
