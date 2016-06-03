@@ -47,9 +47,6 @@ rtmp	= 0
 	intflag:
 		.byte	0
 	
-	seed:
-		.byte	0
-
 .section .text
 	system_get_time:
 		rcall	_get_time
@@ -119,9 +116,7 @@ rtmp	= 0
 		eor	r24,	r23
 		neg	r25
 		add	r24,	r25
-		lds	r25,	seed
-		inc	r25
-		sts	seed,	r25
+		neg	r25
 		eor	r24,	r25
 		ret
 
