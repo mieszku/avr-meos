@@ -47,7 +47,24 @@ void thread (void* obj)
 	}
 }
 
-void __hwport_init (void);
+void showrand (void* obj)
+{
+	while (1) {
+		mutex_lock (&lcdlock);
+
+		uint16_t rand = system_rand ();
+
+		hd44780lcd_set_position (lcd, 3, 0);
+		ostream_put_string (OSTREAM (lcd), "            ");
+		hd44780lcd_set_position (lcd, 3, 0);
+		ostream_put_string (OSTREAM (lcd), "rand: ");
+		ostream_put_int (OSTREAM (lcd), rand);
+
+		mutex_unlock (&lcdlock);
+
+		system_sleep (1000 + rand);
+	}
+}
 
 uint8_t unlock0 (void* obj)
 {
@@ -84,6 +101,8 @@ int main (void)
 	thread_run_alloc (blink, NULL, "blink", 40);
 	thread_run_alloc (blink, NULL, "blink", 40);
 	thread_run_alloc (blink, NULL, "blink", 40);
+
+	thread_run_alloc (showrand, NULL, "rand", 90);
 	
 	task_register (unlock0, NULL, 5000, 500);
 		

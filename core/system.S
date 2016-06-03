@@ -14,6 +14,7 @@ rtmp	= 0
 .global	system_enter_critical
 .global	system_exit_critical
 .global	system_sei
+.global	system_rand
 
 .global __system_awake
 .global	__system_clock_mono
@@ -46,7 +47,7 @@ rtmp	= 0
 	intflag:
 		.byte	0
 	
-	critical:
+	seed:
 		.byte	0
 
 .section .text
@@ -107,6 +108,21 @@ rtmp	= 0
 		sei
 		call	__hwport_chk_int_mon
 		call	__hwport_chk_int_syn
+		ret
+
+	system_rand:
+		rcall	_get_time
+		mul	r22,	r23
+		adc	r23,	r0
+		or	r23,	r1
+		clr	r1
+		eor	r24,	r23
+		neg	r25
+		add	r24,	r25
+		lds	r25,	seed
+		inc	r25
+		sts	seed,	r25
+		eor	r24,	r25
 		ret
 
 	__system_awake:
