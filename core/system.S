@@ -13,6 +13,7 @@ rtmp	= 0
 .global system_yield
 .global	system_enter_critical
 .global	system_exit_critical
+.global	system_sei
 
 .global __system_awake
 .global	__system_clock_mono
@@ -93,11 +94,17 @@ rtmp	= 0
 		jmp	__hwport_sync_clock
 
 	system_enter_critical:
-		call	__hwport_lock
-		jmp	__hwport_check_int
+		jmp 	__hwport_set_en_mon
 
 	system_exit_critical:
-		jmp	__hwport_unlock
+		call	__hwport_set_en_both
+		jmp	__hwport_chk_int_syn
+	
+	system_sei:
+		sei
+		call	__hwport_chk_int_mon
+		call	__hwport_chk_int_syn
+		ret
 
 	__system_awake:
 		rjmp	_update_time

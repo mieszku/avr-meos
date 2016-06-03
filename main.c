@@ -57,6 +57,8 @@ uint8_t unlock0 (void* obj)
 
 int main (void)
 {
+	system_sleep (1000);
+
 	gpio_mode (GPIO_PIN13, GPIO_OUTPUT);
 	gpio_mode (GPIO_PIN7, GPIO_OUTPUT);
 
@@ -70,7 +72,7 @@ int main (void)
 
 	thread_exec (thread, NULL, "thread", &thr, st, 100);
 	
-	task_register (unlock0, NULL, 5000, 1000);
+	task_register (unlock0, NULL, 5000, 500);
 		
 	while (1) {
 		mutex_lock (&lcdlock);
@@ -82,7 +84,7 @@ int main (void)
 	
 		mutex_unlock (&lcdlock);
 
-		system_sleep (2000);
+		system_sleep (1500);
 		gpio_toggle (GPIO_PIN7);
 
 		system_yield ();

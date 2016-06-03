@@ -25,7 +25,7 @@
 
 
 /* timer freq multiplier */
-//#define __system_timer_x2__
+#define __system_timer_x2__
 
 
 /* use xmemalloc instead memalloc as default */
