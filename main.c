@@ -12,12 +12,14 @@
 #include "core/thread.h"
 #include "core/system.h"
 #include "core/task.h"
+#include "core/mutex.h"
 
 #include <util/delay.h>
 #include <stdlib.h>
 
 hd44780gpio_t* 		lcditf;
 hd44780lcd_t*		lcd;
+mutex_t			mtx, lcdlock;
 
 volatile uint8_t	lock;
 
@@ -26,19 +28,21 @@ void __thread_yield (void);
 
 void thread (void* obj)
 {
-	long time = 0;
-
 	while (1) {
-		while (lock);
-		lock = 1;
+		//while (lock);
+		//lock = 1;
+		mutex_lock (&mtx);
+		mutex_lock (&lcdlock);
 		//while (system_get_time () < time);
 		//time += 1000;
 
 		hd44780lcd_set_position (lcd, 1, 0);
-		ostream_put_string (OSTREAM (lcd), "time: ");
-		ostream_put_uint32 (OSTREAM (lcd), system_get_time ());
-		ostream_put_string (OSTREAM (lcd), " ");
 		ostream_put_string (OSTREAM (lcd), thread_current->name);
+		ostream_put_string (OSTREAM (lcd), " : ");
+		ostream_put_uint32 (OSTREAM (lcd), system_get_time ());
+
+		mutex_unlock (&lcdlock);
+
 		gpio_toggle (GPIO_PIN13);
 	}
 }
@@ -47,7 +51,7 @@ void __hwport_init (void);
 
 uint8_t unlock0 (void* obj)
 {
-	lock = 0;
+	mutex_unlock (&mtx);
 	return 1;
 }
 
@@ -69,12 +73,15 @@ int main (void)
 	task_register (unlock0, NULL, 5000, 1000);
 		
 	while (1) {
-		/*
-		hd44780lcd_set_position (lcd, 2, 8);
-		ostream_put_uint32 (OSTREAM (lcd), i++);
-		ostream_put_char (OSTREAM (lcd), ' ');
-		ostream_put_uint32 (OSTREAM (lcd), system_get_time ());
-		*/
+		mutex_lock (&lcdlock);
+
+		hd44780lcd_set_position (lcd, 2, 0);
+		ostream_put_string (OSTREAM (lcd), thread_current->name);
+		ostream_put_string (OSTREAM (lcd), " : ");
+		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
+	
+		mutex_unlock (&lcdlock);
+
 		system_sleep (2000);
 		gpio_toggle (GPIO_PIN7);
 

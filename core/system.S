@@ -89,8 +89,6 @@ rtmp	= 0
 		pop	r10
 		ret
 
-
-
 	system_yield:
 		jmp	__hwport_sync_clock
 
