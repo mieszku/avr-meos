@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 
-typedef uint8_t mutex_t;
+typedef volatile uint8_t mutex_t;
 
 void	mutex_lock	(mutex_t*	mutex);
 void	mutex_unlock	(mutex_t*	mutex);
