@@ -141,16 +141,12 @@ void hd44780gpio_write (hd44780gpio_t* this,
 			uint8_t	       rs,
 			uint8_t	       data)
 {
-	system_enter_critical ();
-
 	if (this->_itfmode == INTERFACE_MODE_4BIT) {
 		write_byte (this, rs, data & 0xF0);
 		write_byte (this, rs, (data & 0x0F) << 4);
 	} else {
 		write_byte (this, rs, data);
 	}
-
-	system_exit_critical ();
 }
 
 uint8_t hd44780gpio_read (hd44780gpio_t* object,

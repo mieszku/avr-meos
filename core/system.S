@@ -56,23 +56,14 @@ rtmp	= 0
 		ret
 
 	system_yield:
-		rcall	_update_time
-		jmp	__thread_yield
+		jmp	__hwport_sync_clock
 
 	system_enter_critical:
-		push	r16
-		ser	r16
-		sts	critical,	r16
-		pop	r16
-		ret
-	
-	system_exit_critical:
-		push	rnull
-		clr	rnull
-		sts	critical,	rnull
-		pop	rnull
-		ret
+		call	__hwport_lock
+		jmp	__hwport_check_int
 
+	system_exit_critical:
+		jmp	__hwport_unlock
 
 	__system_awake:
 		rjmp	_update_time

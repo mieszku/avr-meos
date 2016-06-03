@@ -137,7 +137,7 @@ current	= thread_current
 		adc	r27,	r15
 		sbiw	r26,	1
 
-		call	system_enter_critical
+		;call	system_enter_critical
 
 		rcall	_fork
 		cpse	r26,	rnull
@@ -160,7 +160,8 @@ current	= thread_current
 
 		pop	r29
 		pop	r28
-		jmp	system_exit_critical
+		ret
+		;jmp	system_exit_critical
 	.Lchild:
 		movw	r30,	r12
 		movw	r24,	r10

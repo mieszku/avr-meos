@@ -15,8 +15,6 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-#define SP *((volatile uint16_t*) 0x3D)
-
 hd44780gpio_t* 	lcditf;
 hd44780lcd_t*	lcd;
 
@@ -27,8 +25,6 @@ void __thread_yield (void);
 
 void thread (void* obj)
 {
-	int i = 0;
-
 	long time = 0;
 
 	while (1) {
@@ -41,14 +37,16 @@ void thread (void* obj)
 		ostream_put_string (OSTREAM (lcd), " ");
 		ostream_put_string (OSTREAM (lcd), thread_current->name);
 		gpio_toggle (GPIO_PIN13);
+		//system_exit_critical ();
 
 		//system_yield ();
 	}
 }
 
+void __hwport_init (void);
+
 int main (void)
 {
-	_delay_ms (500);
 	gpio_mode (GPIO_PIN13, GPIO_OUTPUT);
 	gpio_mode (GPIO_PIN7, GPIO_OUTPUT);
 
@@ -73,9 +71,11 @@ int main (void)
 		*/
 		while (system_get_time () < time);
 		time += 500;
+		while (system_get_time () < time) system_yield ();
+		time += 500;
 		gpio_toggle (GPIO_PIN7);
 
-		//system_yield ();
+		system_yield ();
 	}
 	
 	return 0;
