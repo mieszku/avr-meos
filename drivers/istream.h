@@ -18,6 +18,7 @@ struct istream_t
 
 	char*		_stack;
 	uint8_t		_size;
+	uint8_t		_quantity;
 };
 
 struct istreamvt_t
@@ -37,13 +38,9 @@ void		istream_unget_char	(istream_t*	object,
 int16_t		istream_get_int		(istream_t*	object);
 uint16_t	istream_get_uint	(istream_t*	object);
 
-uint8_t		istream_has_next_string	(istream_t*	object);
 uint8_t		istream_has_next_int	(istream_t*	object);
-
-static uint8_t	istream_has_next	(istream_t*	object);
-static char	istream_get_char	(istream_t*	object);
-
-#include "istream.impl.h"
+uint8_t		istream_has_next	(istream_t*	object);
+char		istream_get_char	(istream_t*	object);
 
 #endif
 

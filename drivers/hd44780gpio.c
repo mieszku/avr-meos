@@ -9,6 +9,8 @@
 
 #include <gpio.h>
 #include <system.h>
+#include <memalloc.h>
+
 #include <util/delay.h>
 
 #define GPIO_UNDEFINED		10
@@ -40,6 +42,25 @@ void hd44780gpiovt_init (hd44780gpiovt_t* vtable)
 	vtable->hd44780itfvt.read =
 		(uint8_t (*) (hd44780itf_t*, uint8_t)) 
 		hd44780gpio_read;
+}
+
+hd44780gpio_t* hd44780gpio_new (uint16_t rs,
+				uint16_t rw,
+				uint16_t en,
+				uint16_t db0,
+				uint16_t db1,
+				uint16_t db2,
+				uint16_t db3,
+				uint16_t db4,
+				uint16_t db5,
+				uint16_t db6,
+				uint16_t db7)
+{
+	hd44780gpio_t* instance = xmemalloc (sizeof (hd44780gpio_t));
+	hd44780gpio_construct (instance, rs, rw, en,
+			       db0, db1, db2, db3,
+			       db4, db5, db6, db7);
+	return instance;
 }
 
 void hd44780gpio_construct (hd44780gpio_t* this,

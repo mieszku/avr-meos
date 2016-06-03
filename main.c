@@ -15,8 +15,8 @@
 
 #define SP *((volatile uint16_t*) 0x3D)
 
-hd44780gpio_t 	lcditf;
-hd44780lcd_t	lcd;
+hd44780gpio_t* 	lcditf;
+hd44780lcd_t*	lcd;
 
 uint16_t	sp;
 
@@ -28,12 +28,11 @@ void thread (void)
 	int i = 0;
 
 	while (1) {
-		hd44780lcd_set_position (&lcd, 1, 4);
-
-		ostream_put_string (&lcd.ostream, "time: ");
-		ostream_put_uint32 (&lcd.ostream, i++);
-
+		hd44780lcd_set_position (lcd, 1, 4);
+		ostream_put_string (OSTREAM (lcd), "time: ");
+		ostream_put_uint32 (OSTREAM (lcd), i++);
 		gpio_toggle (GPIO_PIN13);
+
 		_delay_ms (900);
 		_switch ();
 	}
@@ -44,12 +43,11 @@ int main (void)
 	gpio_mode (GPIO_PIN13, GPIO_OUTPUT);
 	gpio_mode (GPIO_PIN7, GPIO_OUTPUT);
 
-	hd44780gpio_construct (&lcditf,
-			       GPIO_PIN2, GPIO_PIN3, GPIO_PIN4,
-			       0, 0, 0, 0,
-			       GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
-	hd44780lcd_construct (&lcd, &lcditf.hd44780itf, LCD4X20);
-
+	lcditf = hd44780gpio_new (GPIO_PIN2, GPIO_PIN3, GPIO_PIN4,
+				  0, 0, 0, 0,
+				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
+	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, LCD4X20);
+	
 	uint8_t stack [101];
 
 	if (! thread_fork (stack + 100))
@@ -58,9 +56,10 @@ int main (void)
 	int i = 0;
 		
 	while (1) {
-		hd44780lcd_set_position (&lcd, 2, 8);
-		ostream_put_uint32 (&lcd.ostream, i++);
+		hd44780lcd_set_position (lcd, 2, 8);
+		ostream_put_uint32 (OSTREAM (lcd), i++);
 		gpio_toggle (GPIO_PIN7);
+
 		_delay_ms (900);
 		_switch ();
 	}
