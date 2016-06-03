@@ -8,6 +8,8 @@
 #include "object.h"
 #include "hd44780itf.h"
 
+#include <mutex.h>
+
 #define HD44780GPIO(x)		((hd44780gpio_t*) (x))
 
 typedef struct hd44780gpio_t	hd44780gpio_t;
@@ -17,6 +19,7 @@ struct hd44780gpio_t
 {
 	hd44780itf_t	hd44780itf;
 
+	mutex_t		_lock;
 	uint8_t		_gpio_mode;
 	uint8_t		_itfmode;
 	uint16_t	_rs;

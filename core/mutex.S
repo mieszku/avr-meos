@@ -7,6 +7,7 @@ rnull	= 1
 
 .global	mutex_lock
 .global	mutex_unlock
+.global	mutex_unlock_later
 
 .section .text
 	mutex_lock:
@@ -28,4 +29,14 @@ rnull	= 1
 	mutex_unlock:
 		movw	r26,	r24
 		st	X,	rnull
+		clr	r24
 		ret
+	
+	mutex_unlock_later:
+		movw	r20,	r22
+		movw	r22,	r24
+		clr	r18
+		clr	r19
+		ldi	r24,	lo8(gs(mutex_unlock))
+		ldi	r25,	hi8(gs(mutex_unlock))
+		jmp	task_register

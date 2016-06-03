@@ -79,6 +79,7 @@ void hd44780gpio_construct (hd44780gpio_t* this,
 	hd44780itf_construct (&this->hd44780itf);
 	OBJECT_VTABLE (this) = (objectvt_t*) &hd44780gpiovt;
 
+	this->_lock = MUTEX_UNLOCKED;
 	this->_gpio_mode = GPIO_UNDEFINED;
 	this->_rs = rs;
 	this->_rw = rw;
@@ -123,6 +124,8 @@ static void write_byte (hd44780gpio_t* this,
 			uint8_t	       rs,
 			uint8_t	       data)
 {
+	mutex_lock (&this->_lock);
+
 	set_gpio_mode (this, GPIO_OUTPUT);
 	
 	gpio_write (this->_en, GPIO_HIGH);
@@ -134,7 +137,7 @@ static void write_byte (hd44780gpio_t* this,
 	
 	gpio_write (this->_en, GPIO_LOW);
 
-	_delay_ms (2);
+	mutex_unlock_later (&this->_lock, 3);
 }
 
 void hd44780gpio_write (hd44780gpio_t* this,

@@ -43,6 +43,9 @@ rtmp	= 0
 	tick:
 		.byte	0
 	
+	intflag:
+		.byte	0
+	
 	critical:
 		.byte	0
 
@@ -107,6 +110,10 @@ rtmp	= 0
 		ret
 
 	__system_awake:
+		push	r16
+		ser	r16
+		sts	intflag,	r16
+		pop	r16
 		rjmp	_update_time
 
 	__system_clock_mono:
@@ -121,12 +128,12 @@ rtmp	= 0
 		jmp	__thread_yield
 	
 	_get_time:
-		rcall	_update_time
+		sts	intflag,	rnull
 		lds	r25,	systime+3
 		lds	r24,	systime+2
 		lds	r23,	systime+1
 		lds	r22,	systime
-		lds	rtmp,	tick
+		lds	rtmp,	intflag
 		cpse	rtmp,	rnull
 		rjmp	_get_time
 		ret
