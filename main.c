@@ -120,6 +120,9 @@ int main (void)
 		gpio_toggle (GPIO_PIN7);
 
 		system_yield ();
+
+		if (system_get_time () > 10000)
+			break;
 	}
 	
 	return 0;

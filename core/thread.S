@@ -153,6 +153,7 @@ current	= thread_current
 		std	Y+OFF_SPNDH,	r17
 		std	Y+OFF_NAMEL,	r20
 		std	Y+OFF_NAMEH,	r21
+		std	Y+OFF_FLAG,	rnull
 
 		movw	r24,	r18
 		rcall	_insert_node
@@ -198,7 +199,35 @@ current	= thread_current
 		ret
 
 	thread_kill:
-		ret
+		call	system_yield
+
+		lds	r24,	current
+		lds	r25,	current+1
+		movw	r28,	r24
+		rcall	_remove_node
+
+		; free flag check
+		ldd	r18,	Y+OFF_FLAG
+		andi	r18,	FLAG_FREE
+		tst	r18
+		breq	.Lnofree
+		movw	r24,	r28
+		call	memfree
+	.Lnofree:
+		; free flag check
+
+		ldd	r30,	Y+OFF_NEXTL
+		ldd	r31,	Y+OFF_NEXTH
+		ldd	r24,	Z+OFF_SPTRL
+		ldd	r25,	Z+OFF_SPTRH
+		sts	current,	r30
+		sts	current+1,	r31
+		cli
+		out	spl,	r24
+		out	sph,	r25
+		call	system_sei
+		pop_context
+		jmp	__system_awake
 
 	__thread_yield:
 		push_context
