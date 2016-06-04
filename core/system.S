@@ -18,10 +18,9 @@ rtmp	= 0
 
 .global __system_awake
 .global	__system_clock_mono
-.global	__system_clock_synced
+.global	__system_clock
 
 .macro	inc_systime	rtmp
-	sts	tick,	rnull
 	lds	\rtmp,	systime
 	subi	\rtmp,	0xFF
 	sts	systime,	\rtmp
@@ -42,9 +41,6 @@ rtmp	= 0
 		.word	0
 
 	tick:
-		.byte	0
-	
-	intflag:
 		.byte	0
 	
 .section .text
@@ -95,16 +91,15 @@ rtmp	= 0
 		jmp	__hwport_sync_clock
 
 	system_enter_critical:
-		jmp 	__hwport_set_en_mon
+		jmp 	__hwport_disable
 
 	system_exit_critical:
-		call	__hwport_set_en_both
-		jmp	__hwport_chk_int_syn
+		call	__hwport_enable
+		jmp	__hwport_check_int
 	
 	system_sei:
 		sei
-		call	__hwport_chk_int_mon
-		call	__hwport_chk_int_syn
+		call	__hwport_check_int
 		ret
 
 	system_rand:
@@ -121,53 +116,32 @@ rtmp	= 0
 		ret
 
 	__system_awake:
-		push	r16
-		ser	r16
-		sts	intflag,	r16
-		pop	r16
-		rjmp	_update_time
+		jmp	__hwport_callback
 
 	__system_clock_mono:
 		push	r16
+		in	r16,	sreg
+		push	r16
 		ser	r16
 		sts	tick,	r16
+		inc_systime	r16
+		pop	r16
+		out	sreg,	r16
 		pop	r16
 		ret
 	
-	__system_clock_synced:
-		rcall	_update_time
+	__system_clock:
 		jmp	__thread_yield
 	
 	_get_time:
-		sts	intflag,	rnull
+		sts	tick,	rnull
 		lds	r25,	systime+3
 		lds	r24,	systime+2
 		lds	r23,	systime+1
 		lds	r22,	systime
-		lds	rtmp,	intflag
+		lds	rtmp,	tick
 		cpse	rtmp,	rnull
 		rjmp	_get_time
 		ret
 
-	_update_time:
-		push	r16
-		push	rnull
-		clr	rnull
-
-		lds	r16,	tick
-		cpse	r16,	rnull
-		rjmp	.Ltick
-		pop	rnull
-		pop	r16
-		ret
-	.Ltick:
-		in	r16,	sreg
-		push	r16
-		sts	tick,	rnull
-		inc_systime	r16
-		pop	r16
-		out	sreg,	r16
-		pop	rnull
-		pop	r16
-		ret
-
+.global __do_clear_bss

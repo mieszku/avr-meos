@@ -10,13 +10,10 @@ rnull	= 1
 
 .global __hwport_init
 .global __hwport_sync_clock
-.global	__hwport_chk_int_mon
-.global	__hwport_chk_int_syn
-
-.global	__hwport_set_en_mon
-.global __hwport_set_en_syn
-.global __hwport_set_en_both
-.global __hwport_set_en_none
+.global __hwport_check_int
+.global __hwport_enable
+.global __hwport_disable
+.global __hwport_callback
 
 .global	__vector_11
 .global __vector_12
@@ -27,7 +24,28 @@ rnull	= 1
 	OCRA	= ((F_CPU/1000/PRESC)-1)
 #endif
 
-#if	(__system_timer__ == 1)
+#if	(__system_timer__ == 0)
+	
+TCCR0A	= 0x44
+TCCR0B	= 0x45
+TCNT0	= 0x46
+OCR0A	= 0x47
+OCR0B	= 0x48
+TIMSK0	= 0x6E
+TIFR0	= 0x35
+
+CS00	= 0x01
+CS01	= 0x02
+CS02	= 0x04
+WGM00	= 0x01
+WGM01	= 0x02
+WGM02	= 0x08
+OCIE0A	= 0x02
+OCIE0B	= 0x04
+OCF1A	= 0x02
+OCF1B	= 0x04
+
+#elif	(__system_timer__ == 1)
 
 TCCR1A	= 0x80
 TCCR1B	= 0x81
@@ -71,7 +89,7 @@ PRESC	= 1
 		sts	OCR1BH,	r19
 		sts	OCR1BL,	r18
 
-		ldi	r18,	OCIE1A;|OCIE1B
+		ldi	r18,	OCIE1B
 		sts	TIMSK1,	r18
 		reti
 	
@@ -79,7 +97,7 @@ PRESC	= 1
 		push	r26
 		push	r27
 
-		ldi	r26,	OCIE1A
+		clr	r26
 		sts	TIMSK1,	r26
 
 		lds	r27,	TCNT1H
@@ -87,66 +105,79 @@ PRESC	= 1
 		sts	OCR1BH,	r27
 		sts	OCR1BL,	r26
 
-		ldi	r26,	OCIE1A|OCIE1B
+		ldi	r26,	OCIE1B
 		sts	TIMSK1,	r26
 
 		pop	r27
 		pop	r26
-		jmp	__system_clock_synced
-	
-	__hwport_chk_int_mon:
+		jmp	__vector_12
+
+	__hwport_check_int:
 		push	r26
-		lds	r26,	TIFR1
-		andi	r26,	OCF1A
-		cpse	r26,	rnull
-		call	__system_clock_mono
-		pop	r26
-		ret
-	
-	__hwport_chk_int_syn:
-		push	r26
+		push	rnull
+		clr	rnull
+
 		lds	r26,	TIFR1
 		andi	r26,	OCF1B
 		cpse	r26,	rnull
-		call	__system_clock_synced
+		call	__vector_12
+		ldi	r26,	OCF1B
+		sts	TIFR1,	r26
+
+		pop	rnull
 		pop	r26
 		ret
 
-	__hwport_set_en_mon:
-		push	r26
-		ldi	r26,	OCIE1A
-		sts	TIMSK1,	r26
-		pop	r26
-		ret
-	
-	__hwport_set_en_syn:
+	__hwport_enable:
 		push	r26
 		ldi	r26,	OCIE1B
 		sts	TIMSK1,	r26
 		pop	r26
 		ret
-
-	__hwport_set_en_both:
-		push	r26
-		ldi	r26,	OCIE1A|OCIE1B
-		sts	TIMSK1,	r26
-		pop	r26
-		ret
-
-	__hwport_set_en_none:
+	
+	__hwport_disable:
 		push	rnull
 		clr	rnull
 		sts	TIMSK1,	rnull
 		pop	rnull
 		ret
 
+	__hwport_callback:
+		push	r26
+		push	rnull
+		clr	rnull
+
+		lds	r26,	TIFR1
+		andi	r26,	OCF1A
+		cpse	r26,	rnull
+		call	__system_clock_mono
+		ldi	r26,	OCF1A
+		sts	TIFR1,	r26
+
+		pop	rnull
+		pop	r26
+		ret
+	
 	__vector_11:
-		sei
 		jmp	__system_clock_mono
 	
 	__vector_12:
 		sei
-		jmp	__system_clock_synced
+		push	r26
+		push	rnull
+		clr	rnull
+
+		lds	r26,	TIFR1
+		andi	r26,	OCF1A
+		cpse	r26,	rnull
+		call	__system_clock_mono
+		ldi	r26,	OCF1A
+		sts	TIFR1,	r26
+
+		pop	rnull
+		pop	r26
+		jmp	__system_clock
+
 #else
 	#error unsupported system timer
 #endif

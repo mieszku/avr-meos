@@ -217,11 +217,10 @@ current	= thread_current
 		ldd	r5,	Z+OFF_SPTRH
 		sts	current,	r30
 		sts	current+1,	r31
-		call	__hwport_set_en_none
+		call	__hwport_disable
 		out	spl,	r4
 		out	sph,	r5
-		call	__hwport_set_en_both
-		call	__hwport_chk_int_mon
+		call	__hwport_enable
 
 		pop_context
 		jmp	__system_awake
