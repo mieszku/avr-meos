@@ -121,7 +121,7 @@ int main (void)
 
 		system_yield ();
 
-		if (system_get_time () > 10000)
+		if (system_get_time () > 110000)
 			break;
 	}
 	

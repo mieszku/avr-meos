@@ -16,6 +16,9 @@ rtmp	= 0
 .global	system_sei
 .global	system_rand
 
+.global rand_seed
+.weak	rand_seed
+
 .global __system_awake
 .global	__system_clock_mono
 .global	__system_clock
@@ -105,6 +108,7 @@ rtmp	= 0
 	system_rand:
 		rcall	_get_time
 		mul	r22,	r23
+		swap	r0
 		adc	r23,	r0
 		or	r23,	r1
 		clr	r1
@@ -112,7 +116,22 @@ rtmp	= 0
 		neg	r25
 		add	r24,	r25
 		neg	r25
+		swap	r25
 		eor	r24,	r25
+		push	r24
+		call	rand_seed
+		pop	r25
+		eor	r24,	r25
+		ret
+	
+	rand_seed:
+		rcall	_get_time
+		swap	r24
+		adc	r22,	r23
+		swap	r22
+		eor	r24,	r25
+		eor	r24,	r23
+		sbc	r24,	r22
 		ret
 
 	__system_awake:
