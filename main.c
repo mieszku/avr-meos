@@ -37,13 +37,11 @@ void thread (void* obj)
 		//time += 1000;
 
 		hd44780lcd_set_position (lcd, 1, 0);
-		ostream_put_string (OSTREAM (lcd), thread_current->name);
+		//ostream_put_string (OSTREAM (lcd), thread_current->name);
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time ());
 
 		mutex_unlock (&lcdlock);
-
-		gpio_toggle (GPIO_PIN13);
 	}
 }
 
@@ -81,32 +79,28 @@ void blink (void* obj)
 		system_sleep (system_rand ());
 
 		mutex_lock (&m);
-		gpio_toggle (GPIO_PIN7);
+		//gpio_toggle (GPIO_PIN7);
 		mutex_unlock (&m);
 	}
 }
 
 int main (void)
 {
-	system_sleep (1000);
+	init_system ();
 
-	gpio_mode (GPIO_PIN13, GPIO_OUTPUT);
-	gpio_mode (GPIO_PIN7, GPIO_OUTPUT);
-
-	lcditf = hd44780gpio_new (GPIO_PIN2, GPIO_PIN3, GPIO_PIN4,
-				  0, 0, 0, 0,
-				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
+	lcditf = hd44780gpio_new (GPIO_PIND6, GPIO_PINA0, GPIO_PIND7,
+				  GPIO_PINC0, GPIO_PINC1, GPIO_PINC2, GPIO_PINC3,
+				  GPIO_PINC4, GPIO_PINC5, GPIO_PINC6, GPIO_PINC7);
 	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, LCD4X20);
+
+	hd44780lcd_set_position (lcd, 0, 0);
+	ostream_put_string (OSTREAM (lcd), "hello");
 	
 	static uint8_t st [201];
 	static thread_t thr;
 
 	thread_exec (thread, NULL, "thread", &thr, st, 200);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
+	//thread_run_alloc (blink, NULL, "blink", 80);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
@@ -116,14 +110,13 @@ int main (void)
 		mutex_lock (&lcdlock);
 
 		hd44780lcd_set_position (lcd, 2, 0);
-		ostream_put_string (OSTREAM (lcd), thread_current->name);
+		//ostream_put_string (OSTREAM (lcd), thread_current->name);
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
 	
 		mutex_unlock (&lcdlock);
 
 		system_sleep (1500);
-		gpio_toggle (GPIO_PIN7);
 	}
 	
 	return 0;

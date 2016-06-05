@@ -4,9 +4,9 @@
 
 PROJ		= meos
 PORT		= /dev/ttyACM0
-PROG		= arduino
-MCU		= atmega328p
-FCPU		= 16000000
+PROG		= usbasp 
+MCU		= atmega32
+FCPU		= 14745600
 
 ############################
 

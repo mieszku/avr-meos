@@ -66,7 +66,7 @@ void hd44780lcd_construct (hd44780lcd_t* this,
 	}
 	
 	hd44780_function_set (&this->_hd44780,
-			      INTERFACE_MODE_4BIT,
+			      INTERFACE_MODE_8BIT,
 			      LINE_MODE_TWOLINE,
 			      MATRIX_5X7);
 	hd44780_display_set (&this->_hd44780,

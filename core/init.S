@@ -21,7 +21,16 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 		.zero	STSIZ
 
 
-.section .init8
+.global init_system
+
+.section .fini8
+	call	thread_kill
+
+.section .text
+	_systhread:
+		call	__task_handle
+		rjmp	_systhread
+
 	init_system:
 		call	__hwport_init
 		ldi	r24,	lo8(gs(_systhread))
@@ -36,11 +45,4 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 		ldi	r27,	hi8(STSIZ)
 		movw	r14,	r26
 		call	thread_exec
-
-.section .fini8
-	call	thread_kill
-
-.section .text
-	_systhread:
-		call	__task_handle
-		rjmp	_systhread
+		ret

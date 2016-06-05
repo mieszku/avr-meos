@@ -10,12 +10,12 @@
  */
 
 /* MCU definition */
-#define __atmega328p__
-//#define __atmega32__
+//#define __atmega328p__
+#define __atmega32__
 
 
 /* specific platform */
-#define __arduino_uno__
+//#define __arduino_uno__
 
 
 /* system timer */
@@ -27,7 +27,7 @@
 /* timer freq multiplier */
 //#define __system_timer_x2__
 //#define __system_timer_x4__
-#define __system_timer_x8__
+//#define __system_timer_x8__
 
 
 /* use xmemalloc instead memalloc as default */
@@ -48,7 +48,7 @@
 #define SYSTEM_STACK_SIZE	64
 
 /* fixed size of heap on which dynamic memory is allocated */
-#define HEAP_SIZE		1280
+#define HEAP_SIZE		768 
 
 
 
