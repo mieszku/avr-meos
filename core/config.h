@@ -26,7 +26,8 @@
 
 /* timer freq multiplier */
 //#define __system_timer_x2__
-#define __system_timer_x4__
+//#define __system_timer_x4__
+#define __system_timer_x8__
 
 
 /* use xmemalloc instead memalloc as default */
@@ -75,9 +76,9 @@
 
 #ifndef MAX_TASKS
 	#error please define MAX_TASKS
-#elif !defined(SYSTEM_STACK_SIZE)
+#elif !defined SYSTEM_STACK_SIZE
 	#error please define SYSTEM_STACK_SIZE
-#elif !defined (HEAP_SIZE)
+#elif !defined HEAP_SIZE
 	#error please define HEAP_SIZE
 #endif
 
@@ -85,8 +86,24 @@
 	#define memalloc xmemalloc
 #endif
 
-#if	defined __system_timer_x2__ && defined __system_timer_x4__
-	#error only one system clock multiplier can be defined
+#ifdef __system_timer_x2__
+	#define __system_timer_mul_defined__
+#endif
+#ifdef __system_timer_x4__
+	#ifdef __system_timer_mul_defined__
+		#error only one system clock multiplier can be defined
+	#endif
+	#define __system_timer_mul_defined__
+#endif
+#ifdef __system_timer_x8__
+	#ifdef __system_timer_mul_defined__
+		#error only one system clock multiplier can be defined
+	#endif
+	#define __system_timer_mul_defined__
+#endif
+
+#ifdef __system_timer_mul_defined__
+	#undef __system_timer_mul_defined__
 #endif
 
 #endif

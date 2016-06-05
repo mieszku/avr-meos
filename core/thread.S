@@ -137,7 +137,7 @@ current	= thread_current
 		adc	r27,	r15
 		sbiw	r26,	1
 
-		;call	system_enter_critical
+		call	system_enter_critical
 
 		rcall	_fork
 		cpse	r26,	rnull
@@ -161,8 +161,7 @@ current	= thread_current
 
 		pop	r29
 		pop	r28
-		ret
-		;jmp	system_exit_critical
+		jmp	system_exit_critical
 	.Lchild:
 		movw	r30,	r12
 		movw	r24,	r10
@@ -199,6 +198,8 @@ current	= thread_current
 		ret
 
 	thread_kill:
+		ret
+		/*
 		call	system_yield
 
 		lds	r24,	current
@@ -228,6 +229,7 @@ current	= thread_current
 		call	system_sei
 		pop_context
 		jmp	__system_awake
+		*/
 
 	__thread_yield:
 		push_context

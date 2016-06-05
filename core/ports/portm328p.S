@@ -11,8 +11,7 @@ rnull	= 1
 .global __hwport_init
 .global __hwport_sync_clock
 .global __hwport_get_tick
-.global __hwport_check_int
-.global __hwport_clear_int
+.global	__hwport_get_int
 .global __hwport_enable
 .global __hwport_disable
 .global __hwport_callback
@@ -24,6 +23,8 @@ rnull	= 1
 	OCRA	= ((F_CPU/1000/PRESC/2)-1)
 #elif	defined __system_timer_x4__
 	OCRA	= ((F_CPU/1000/PRESC/4)-1)
+#elif	defined __system_timer_x8__
+	OCRA	= ((F_CPU/1000/PRESC/8)-1)
 #else
 	OCRA	= ((F_CPU/1000/PRESC)-1)
 #endif
@@ -110,18 +111,11 @@ PRESC	= 1
 		andi	r24,	OCF1A
 		ret
 
-	__hwport_check_int:
-		lds	r26,	TIFR1
-		andi	r26,	OCF1B
-		cpse	r26,	rnull
-		call	__vector_12
-		ldi	r26,	OCF1B
-		sts	TIFR1,	r26
-		ret
-	
-	__hwport_clear_int:
-		ldi	r26,	OCF1B
-		sts	TIFR1,	r26
+	__hwport_get_int:
+		ldi	r25,	OCF1B
+		lds	r24,	TIFR1
+		sts	TIFR1,	r25
+		and	r24,	r25
 		ret
 
 	__hwport_enable:

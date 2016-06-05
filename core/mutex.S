@@ -24,7 +24,11 @@ rnull	= 1
 		call	__hwport_enable
 		pop	r29
 		pop	r28
-		jmp	__hwport_check_int
+		;jmp	__hwport_check_int
+		call	__hwport_get_int
+		cpse	r24,	rnull
+		jmp	system_yield
+		ret
 	.Ltryagain:
 		call	system_yield
 		rjmp	.Ltryacquire

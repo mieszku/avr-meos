@@ -49,13 +49,19 @@ rtmp	= 0
 .section .text
 	system_get_time:
 		rcall	_get_time
-		#if	defined __system_timer_x2__ || defined __system_timer_x4__
+		#if	defined __system_timer_x2__ || defined __system_timer_x4__ || defined __system_timer_x8__
 		lsr	r25
 		ror	r24
 		ror	r23
 		ror	r22
 		#endif
-		#ifdef __system_timer_x4__
+		#if 	defined __system_timer_x4__ || defined __system_timer_x8__
+		lsr	r25
+		ror	r24
+		ror	r23
+		ror	r22
+		#endif
+		#if	defined __system_timer_x8__
 		lsr	r25
 		ror	r24
 		ror	r23
@@ -64,11 +70,15 @@ rtmp	= 0
 		ret
 	
 	system_sleep:
-		#if	defined __system_timer_x2__ || defined __system_timer_x4__
+		#if	defined __system_timer_x2__ || defined __system_timer_x4__ || defined __system_timer_x8__
 		lsl	r24
 		rol	r25
 		#endif
-		#ifdef 	__system_timer_x4__
+		#if 	defined __system_timer_x4__ || defined __system_timer_x8__
+		lsl	r24
+		rol	r25
+		#endif
+		#if	defined __system_timer_x8__
 		lsl	r24
 		rol	r25
 		#endif
@@ -114,11 +124,13 @@ rtmp	= 0
 
 	system_exit_critical:
 		call	__hwport_enable
-		jmp	__hwport_check_int
+		call	__hwport_get_int
+		cpse	r24,	rnull
+		jmp	system_yield
+		ret
 	
-	system_sei:
-		sei
-		jmp	__hwport_check_int
+	;system_sei:	; TODO
+		reti
 
 	system_rand:
 		rcall	_get_time
@@ -150,7 +162,7 @@ rtmp	= 0
 
 	__system_awake:
 		call	__hwport_enable
-		jmp	__hwport_clear_int
+		jmp	__hwport_get_int
 
 	__system_update_time:
 		call	__hwport_get_tick
