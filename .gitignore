@@ -1,5 +1,7 @@
 *.hex
 *.elf
+*.a
+inc/*
 obj/*
 .*.swp
 ldscripts
