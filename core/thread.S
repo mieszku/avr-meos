@@ -232,6 +232,7 @@ current	= thread_current
 	__thread_yield:
 		push_context
 		clr	rnull
+
 		call	__system_update_time
 
 		in	r22,	spl
@@ -250,8 +251,7 @@ current	= thread_current
 		out	spl,	r24
 		out	sph,	r25
 
-		;call	__system_update_time
-		call	__hwport_clear_int
+		call	__system_awake
 		pop_context
 		reti
 	

@@ -23,25 +23,19 @@ rtmp	= 0
 .global __system_update_time
 .global	__system_clock
 
-.macro	inc_systime	rtmp
-	ldi	r26,	lo8(systime)
-	ldi	r27,	hi8(systime)
-
-	ld	\rtmp,	X
+.macro	inc_systime	rtmp, ptr
+	ld	\rtmp,	\ptr
 	subi	\rtmp,	0xFF
-	st	X+,	\rtmp
-
-	ld	\rtmp,	X
+	st	\ptr+,	\rtmp
+	ld	\rtmp,	\ptr
 	sbci	\rtmp,	0xFF
-	st	X+,	\rtmp
-
-	ld	\rtmp,	X
+	st	\ptr+,	\rtmp
+	ld	\rtmp,	\ptr
 	sbci	\rtmp,	0xFF
-	st	X+,	\rtmp
-
-	ld	\rtmp,	X
+	st	\ptr+,	\rtmp
+	ld	\rtmp,	\ptr
 	sbci	\rtmp,	0xFF
-	st	X,	\rtmp
+	st	\ptr,	\rtmp
 .endm
 
 .section .bss
@@ -55,11 +49,13 @@ rtmp	= 0
 .section .text
 	system_get_time:
 		rcall	_get_time
-		#ifdef __system_timer_x2__
+		#if	defined __system_timer_x2__ || defined __system_timer_x4__
 		lsr	r25
 		ror	r24
 		ror	r23
 		ror	r22
+		#endif
+		#ifdef __system_timer_x4__
 		lsr	r25
 		ror	r24
 		ror	r23
@@ -68,13 +64,17 @@ rtmp	= 0
 		ret
 	
 	system_sleep:
-		#ifdef __system_timer_x2__
-		lsl	r24
-		rol	r25
+		#if	defined __system_timer_x2__ || defined __system_timer_x4__
 		lsl	r24
 		rol	r25
 		#endif
-		movw	r26,	r24
+		#ifdef 	__system_timer_x4__
+		lsl	r24
+		rol	r25
+		#endif
+		push	r28
+		push	r29
+		movw	r28,	r24
 		rcall	_get_time
 		push	r10
 		push	r11
@@ -82,8 +82,8 @@ rtmp	= 0
 		push	r13
 		movw	r10,	r22
 		movw	r12,	r24
-		add	r10,	r26
-		adc	r11,	r27
+		add	r10,	r28
+		adc	r11,	r29
 		adc	r12,	rnull
 		adc	r13,	rnull
 	.Lsleep:
@@ -100,24 +100,25 @@ rtmp	= 0
 		pop	r12
 		pop	r11
 		pop	r10
+		pop	r29
+		pop	r28
 		ret
 
 	system_yield:
-		cli
+		call	__hwport_disable
 		call	__hwport_sync_clock
 		jmp	__thread_yield
-
 
 	system_enter_critical:
 		jmp 	__hwport_disable
 
 	system_exit_critical:
 		call	__hwport_enable
-		jmp	__hwport_clear_int
 		jmp	__hwport_check_int
 	
 	system_sei:
-		reti
+		sei
+		jmp	__hwport_check_int
 
 	system_rand:
 		rcall	_get_time
@@ -148,7 +149,8 @@ rtmp	= 0
 		ret
 
 	__system_awake:
-		ret
+		call	__hwport_enable
+		jmp	__hwport_clear_int
 
 	__system_update_time:
 		call	__hwport_get_tick
@@ -157,7 +159,9 @@ rtmp	= 0
 		ret
 	.Lincrement:
 		sts	tick,	r24
-		inc_systime	r24
+		ldi	r26,	lo8(systime)
+		ldi	r27,	hi8(systime)
+		inc_systime	r24,	X
 		ret
 	
 	__system_clock:
@@ -171,10 +175,6 @@ rtmp	= 0
 		ld	r23,	X+
 		ld	r24,	X+
 		ld	r25,	X
-		;lds	r25,	systime+3
-		;lds	r24,	systime+2
-		;lds	r23,	systime+1
-		;lds	r22,	systime
 		lds	rtmp,	tick
 		cpse	rtmp,	rnull
 		rjmp	_get_time

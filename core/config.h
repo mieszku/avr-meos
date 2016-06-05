@@ -26,6 +26,7 @@
 
 /* timer freq multiplier */
 //#define __system_timer_x2__
+#define __system_timer_x4__
 
 
 /* use xmemalloc instead memalloc as default */
@@ -82,6 +83,10 @@
 
 #ifdef __xmemalloc_default__
 	#define memalloc xmemalloc
+#endif
+
+#if	defined __system_timer_x2__ && defined __system_timer_x4__
+	#error only one system clock multiplier can be defined
 #endif
 
 #endif

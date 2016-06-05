@@ -20,7 +20,9 @@ rnull	= 1
 .global	__vector_11
 .global __vector_12
 
-#ifdef __system_timer_x2__
+#if	defined __system_timer_x2__
+	OCRA	= ((F_CPU/1000/PRESC/2)-1)
+#elif	defined __system_timer_x4__
 	OCRA	= ((F_CPU/1000/PRESC/4)-1)
 #else
 	OCRA	= ((F_CPU/1000/PRESC)-1)
@@ -72,11 +74,11 @@ OCIE1B	= 0x04
 OCF1A	= 0x02
 OCF1B	= 0x04
 
-PRESC	= 64
+PRESC	= 1
 
 .section .text
 	__hwport_init:
-		ldi	r18,	WGM12|CS10|CS11
+		ldi	r18,	WGM12|CS10
 		sts	TCCR1A,	rnull
 		sts	TCCR1B,	r18
 		sts	TCCR1C,	rnull
@@ -94,15 +96,11 @@ PRESC	= 64
 		reti
 	
 	__hwport_sync_clock:
-		sts	TIMSK1,	rnull
-
 		lds	r27,	TCNT1H
 		lds	r26,	TCNT1L
+		subi	r26,	3
 		sts	OCR1BH,	r27
 		sts	OCR1BL,	r26
-
-		ldi	r26,	OCIE1B
-		sts	TIMSK1,	r26
 		ret
 	
 	__hwport_get_tick:
@@ -136,6 +134,7 @@ PRESC	= 64
 		ret
 	
 	__vector_12:
+		sei
 		jmp	__system_clock
 
 #else

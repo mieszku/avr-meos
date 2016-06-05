@@ -12,7 +12,7 @@ void		system_sleep		(uint16_t	delay);
 void		system_yield		(void);
 void		system_enter_critical	(void);
 void		system_exit_critical	(void);
-void		system_sei		(void) __attribute__ ((naked));
+void		system_sei		(void);
 uint8_t		system_rand		(void);
 
 #endif

@@ -63,7 +63,7 @@ void showrand (void* obj)
 
 		mutex_unlock (&lcdlock);
 
-		system_sleep (1000 + rand);
+		system_sleep (2000);
 	}
 }
 
