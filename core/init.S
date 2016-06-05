@@ -22,6 +22,7 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 
 
 .global init_system
+.global init_systhread
 
 .section .fini8
 	call	thread_kill
@@ -29,6 +30,7 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 .section .text
 	_systhread:
 		call	__task_handle
+		call	system_yield
 		rjmp	_systhread
 
 	init_system:

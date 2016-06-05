@@ -76,18 +76,21 @@ void blink (void* obj)
 	static mutex_t m;
 
 	while (1) {
-		system_sleep (system_rand ());
-
-		mutex_lock (&m);
-		//gpio_toggle (GPIO_PIN7);
-		mutex_unlock (&m);
 	}
+}
+
+#include <avr/interrupt.h>
+#include <avr/io.h>
+
+void foo (void)
+{
+	ostream_put_string (OSTREAM (lcd), "hello");
+	_delay_ms (250);
 }
 
 int main (void)
 {
 	init_system ();
-
 	lcditf = hd44780gpio_new (GPIO_PIND6, GPIO_PINA0, GPIO_PIND7,
 				  GPIO_PINC0, GPIO_PINC1, GPIO_PINC2, GPIO_PINC3,
 				  GPIO_PINC4, GPIO_PINC5, GPIO_PINC6, GPIO_PINC7);
@@ -95,12 +98,12 @@ int main (void)
 
 	hd44780lcd_set_position (lcd, 0, 0);
 	ostream_put_string (OSTREAM (lcd), "hello");
-	
+
 	static uint8_t st [201];
 	static thread_t thr;
 
 	thread_exec (thread, NULL, "thread", &thr, st, 200);
-	//thread_run_alloc (blink, NULL, "blink", 80);
+	thread_run_alloc (blink, NULL, "blink", 80);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	

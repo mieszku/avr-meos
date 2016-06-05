@@ -19,13 +19,13 @@
 
 
 /* system timer */
-//#define __system_timer__	0
-#define __system_timer__	1
+#define __system_timer__	0
+//#define __system_timer__	1
 //#define __system_timer__	2
 
 
 /* timer freq multiplier */
-//#define __system_timer_x2__
+#define __system_timer_x2__
 //#define __system_timer_x4__
 //#define __system_timer_x8__
 
