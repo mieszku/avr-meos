@@ -49,19 +49,19 @@ rtmp	= 0
 .section .text
 	system_get_time:
 		rcall	_get_time
-		#if	defined __system_timer_x2__ || defined __system_timer_x4__ || defined __system_timer_x8__
+		#if	__system_timer_mult__ > 1
 		lsr	r25
 		ror	r24
 		ror	r23
 		ror	r22
 		#endif
-		#if 	defined __system_timer_x4__ || defined __system_timer_x8__
+		#if 	__system_timer_mult__ > 2
 		lsr	r25
 		ror	r24
 		ror	r23
 		ror	r22
 		#endif
-		#if	defined __system_timer_x8__
+		#if	__system_timer_mult__ > 4
 		lsr	r25
 		ror	r24
 		ror	r23
@@ -70,15 +70,15 @@ rtmp	= 0
 		ret
 	
 	system_sleep:
-		#if	defined __system_timer_x2__ || defined __system_timer_x4__ || defined __system_timer_x8__
+		#if	__system_timer_mult__ > 1
 		lsl	r24
 		rol	r25
 		#endif
-		#if 	defined __system_timer_x4__ || defined __system_timer_x8__
+		#if 	__system_timer_mult__ > 2
 		lsl	r24
 		rol	r25
 		#endif
-		#if	defined __system_timer_x8__
+		#if	__system_timer_mult__ > 4
 		lsl	r24
 		rol	r25
 		#endif
@@ -126,11 +126,15 @@ rtmp	= 0
 		call	__hwport_enable
 		call	__hwport_get_int
 		cpse	r24,	rnull
-		jmp	system_yield
+		rjmp	system_yield
 		ret
 	
-	;system_sei:	; TODO
-		reti
+	system_sei:	; TODO
+		sei
+		call	__hwport_get_int
+		cpse	r24,	rnull
+		rjmp	system_yield
+		ret
 
 	system_rand:
 		rcall	_get_time

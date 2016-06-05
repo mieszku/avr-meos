@@ -87,23 +87,28 @@
 #endif
 
 #ifdef __system_timer_x2__
+	#define __system_timer_mult__	2
 	#define __system_timer_mul_defined__
 #endif
 #ifdef __system_timer_x4__
 	#ifdef __system_timer_mul_defined__
 		#error only one system clock multiplier can be defined
 	#endif
+	#define __system_timer_mult__	4
 	#define __system_timer_mul_defined__
 #endif
 #ifdef __system_timer_x8__
 	#ifdef __system_timer_mul_defined__
 		#error only one system clock multiplier can be defined
 	#endif
+	#define __system_timer_mult__	8
 	#define __system_timer_mul_defined__
 #endif
 
 #ifdef __system_timer_mul_defined__
 	#undef __system_timer_mul_defined__
+#else
+	#define __system_timer_mult__	1
 #endif
 
 #endif
