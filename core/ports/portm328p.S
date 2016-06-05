@@ -10,7 +10,9 @@ rnull	= 1
 
 .global __hwport_init
 .global __hwport_sync_clock
+.global __hwport_get_tick
 .global __hwport_check_int
+.global __hwport_clear_int
 .global __hwport_enable
 .global __hwport_disable
 .global __hwport_callback
@@ -19,7 +21,7 @@ rnull	= 1
 .global __vector_12
 
 #ifdef __system_timer_x2__
-	OCRA	= ((F_CPU/1000/PRESC/2)-1)
+	OCRA	= ((F_CPU/1000/PRESC/4)-1)
 #else
 	OCRA	= ((F_CPU/1000/PRESC)-1)
 #endif
@@ -70,11 +72,11 @@ OCIE1B	= 0x04
 OCF1A	= 0x02
 OCF1B	= 0x04
 
-PRESC	= 1
+PRESC	= 64
 
 .section .text
 	__hwport_init:
-		ldi	r18,	WGM12|CS10
+		ldi	r18,	WGM12|CS10|CS11
 		sts	TCCR1A,	rnull
 		sts	TCCR1B,	r18
 		sts	TCCR1C,	rnull
@@ -84,21 +86,15 @@ PRESC	= 1
 		sts	OCR1AH,	r19
 		sts	OCR1AL,	r18
 
-		ldi	r18,	lo8(OCRA/2)
-		ldi	r19,	hi8(OCRA/2)
-		sts	OCR1BH,	r19
-		sts	OCR1BL,	r18
+		sts	OCR1BH,	rnull
+		sts	OCR1BL,	rnull
 
 		ldi	r18,	OCIE1B
 		sts	TIMSK1,	r18
 		reti
 	
 	__hwport_sync_clock:
-		push	r26
-		push	r27
-
-		clr	r26
-		sts	TIMSK1,	r26
+		sts	TIMSK1,	rnull
 
 		lds	r27,	TCNT1H
 		lds	r26,	TCNT1L
@@ -107,75 +103,39 @@ PRESC	= 1
 
 		ldi	r26,	OCIE1B
 		sts	TIMSK1,	r26
-
-		pop	r27
-		pop	r26
-		jmp	__vector_12
+		ret
+	
+	__hwport_get_tick:
+		ldi	r25,	OCF1A
+		lds	r24,	TIFR1
+		sts	TIFR1,	r25
+		andi	r24,	OCF1A
+		ret
 
 	__hwport_check_int:
-		push	r26
-		push	rnull
-		clr	rnull
-
 		lds	r26,	TIFR1
 		andi	r26,	OCF1B
 		cpse	r26,	rnull
 		call	__vector_12
 		ldi	r26,	OCF1B
 		sts	TIFR1,	r26
-
-		pop	rnull
-		pop	r26
+		ret
+	
+	__hwport_clear_int:
+		ldi	r26,	OCF1B
+		sts	TIFR1,	r26
 		ret
 
 	__hwport_enable:
-		push	r26
 		ldi	r26,	OCIE1B
 		sts	TIMSK1,	r26
-		pop	r26
 		ret
 	
 	__hwport_disable:
-		push	rnull
-		clr	rnull
 		sts	TIMSK1,	rnull
-		pop	rnull
 		ret
-
-	__hwport_callback:
-		push	r26
-		push	rnull
-		clr	rnull
-
-		lds	r26,	TIFR1
-		andi	r26,	OCF1A
-		cpse	r26,	rnull
-		call	__system_clock_mono
-		ldi	r26,	OCF1A
-		sts	TIFR1,	r26
-
-		pop	rnull
-		pop	r26
-		ret
-	
-	__vector_11:
-		jmp	__system_clock_mono
 	
 	__vector_12:
-		sei
-		push	r26
-		push	rnull
-		clr	rnull
-
-		lds	r26,	TIFR1
-		andi	r26,	OCF1A
-		cpse	r26,	rnull
-		call	__system_clock_mono
-		ldi	r26,	OCF1A
-		sts	TIFR1,	r26
-
-		pop	rnull
-		pop	r26
 		jmp	__system_clock
 
 #else

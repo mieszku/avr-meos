@@ -232,31 +232,31 @@ current	= thread_current
 	__thread_yield:
 		push_context
 		clr	rnull
+		call	__system_update_time
 
-		in	r2,	spl
-		in	r3,	sph
+		in	r22,	spl
+		in	r23,	sph
 		lds	r28,	current
 		lds	r29,	current+1
 
-		std	Y+OFF_SPTRL,	r2
-		std	Y+OFF_SPTRH,	r3
+		std	Y+OFF_SPTRL,	r22
+		std	Y+OFF_SPTRH,	r23
 		ldd	r30,	Y+OFF_NEXTL
 		ldd	r31,	Y+OFF_NEXTH
-		ldd	r4,	Z+OFF_SPTRL
-		ldd	r5,	Z+OFF_SPTRH
+		ldd	r24,	Z+OFF_SPTRL
+		ldd	r25,	Z+OFF_SPTRH
 		sts	current,	r30
 		sts	current+1,	r31
-		call	__hwport_disable
-		out	spl,	r4
-		out	sph,	r5
-		call	__hwport_enable
+		out	spl,	r24
+		out	sph,	r25
 
+		;call	__system_update_time
+		call	__hwport_clear_int
 		pop_context
-		jmp	__system_awake
+		reti
 	
 	_insert_node:
 		; takes pointer to thread at r24:r25
-		; uses r26:r27
 		push	r28
 		push	r29
 
@@ -281,7 +281,6 @@ current	= thread_current
 	
 	_remove_node:
 		; takes pointer to thread at r24:r25
-		; uses r26:r27
 		push	r28
 		push	r29
 

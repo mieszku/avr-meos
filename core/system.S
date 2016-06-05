@@ -20,22 +20,28 @@ rtmp	= 0
 .weak	rand_seed
 
 .global __system_awake
-.global	__system_clock_mono
+.global __system_update_time
 .global	__system_clock
 
 .macro	inc_systime	rtmp
-	lds	\rtmp,	systime
+	ldi	r26,	lo8(systime)
+	ldi	r27,	hi8(systime)
+
+	ld	\rtmp,	X
 	subi	\rtmp,	0xFF
-	sts	systime,	\rtmp
-	lds	\rtmp,	systime+1
+	st	X+,	\rtmp
+
+	ld	\rtmp,	X
 	sbci	\rtmp,	0xFF
-	sts	systime+1,	\rtmp
-	lds	\rtmp,	systime+2
+	st	X+,	\rtmp
+
+	ld	\rtmp,	X
 	sbci	\rtmp,	0xFF
-	sts	systime+2,	\rtmp
-	lds	\rtmp,	systime+3
+	st	X+,	\rtmp
+
+	ld	\rtmp,	X
 	sbci	\rtmp,	0xFF
-	sts	systime+3,	\rtmp
+	st	X,	\rtmp
 .endm
 
 .section .bss
@@ -54,11 +60,17 @@ rtmp	= 0
 		ror	r24
 		ror	r23
 		ror	r22
+		lsr	r25
+		ror	r24
+		ror	r23
+		ror	r22
 		#endif
 		ret
 	
 	system_sleep:
 		#ifdef __system_timer_x2__
+		lsl	r24
+		rol	r25
 		lsl	r24
 		rol	r25
 		#endif
@@ -91,19 +103,21 @@ rtmp	= 0
 		ret
 
 	system_yield:
-		jmp	__hwport_sync_clock
+		cli
+		call	__hwport_sync_clock
+		jmp	__thread_yield
+
 
 	system_enter_critical:
 		jmp 	__hwport_disable
 
 	system_exit_critical:
 		call	__hwport_enable
+		jmp	__hwport_clear_int
 		jmp	__hwport_check_int
 	
 	system_sei:
-		sei
-		call	__hwport_check_int
-		ret
+		reti
 
 	system_rand:
 		rcall	_get_time
@@ -118,10 +132,9 @@ rtmp	= 0
 		neg	r25
 		swap	r25
 		eor	r24,	r25
-		push	r24
+		mov	rtmp,	r24
 		call	rand_seed
-		pop	r25
-		eor	r24,	r25
+		eor	r24,	rtmp
 		ret
 	
 	rand_seed:
@@ -135,29 +148,33 @@ rtmp	= 0
 		ret
 
 	__system_awake:
-		jmp	__hwport_callback
+		ret
 
-	__system_clock_mono:
-		push	r16
-		in	r16,	sreg
-		push	r16
-		ser	r16
-		sts	tick,	r16
-		inc_systime	r16
-		pop	r16
-		out	sreg,	r16
-		pop	r16
+	__system_update_time:
+		call	__hwport_get_tick
+		cpse	r24,	rnull
+		rjmp	.Lincrement
+		ret
+	.Lincrement:
+		sts	tick,	r24
+		inc_systime	r24
 		ret
 	
 	__system_clock:
 		jmp	__thread_yield
 	
 	_get_time:
+		ldi	r26,	lo8(systime)
+		ldi	r27,	hi8(systime)
 		sts	tick,	rnull
-		lds	r25,	systime+3
-		lds	r24,	systime+2
-		lds	r23,	systime+1
-		lds	r22,	systime
+		ld	r22,	X+
+		ld	r23,	X+
+		ld	r24,	X+
+		ld	r25,	X
+		;lds	r25,	systime+3
+		;lds	r24,	systime+2
+		;lds	r23,	systime+1
+		;lds	r22,	systime
 		lds	rtmp,	tick
 		cpse	rtmp,	rnull
 		rjmp	_get_time

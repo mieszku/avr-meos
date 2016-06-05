@@ -11,20 +11,23 @@ rnull	= 1
 
 .section .text
 	mutex_lock:
-		movw	r26,	r24
+		push	r28
+		push	r29
+		movw	r28,	r24
 	.Ltryacquire:
 		call	__hwport_disable
-		ld	rtmp,	X
+		ld	rtmp,	Y
 		cpse	rtmp,	rnull
 		rjmp	.Ltryagain
 		com	rtmp
-		st	X,	rtmp
+		st	Y,	rtmp
 		call	__hwport_enable
+		pop	r29
+		pop	r28
 		jmp	__hwport_check_int
 	.Ltryagain:
 		call	system_yield
 		rjmp	.Ltryacquire
-		ret
 	
 	mutex_unlock:
 		movw	r26,	r24

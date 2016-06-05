@@ -55,9 +55,10 @@ void showrand (void* obj)
 		uint16_t rand = system_rand ();
 
 		hd44780lcd_set_position (lcd, 3, 0);
-		ostream_put_string (OSTREAM (lcd), "            ");
-		hd44780lcd_set_position (lcd, 3, 0);
 		ostream_put_string (OSTREAM (lcd), "rand: ");
+		hd44780lcd_set_position (lcd, 3, 7);
+		ostream_put_string (OSTREAM (lcd), "  ");
+		hd44780lcd_set_position (lcd, 3, 6);
 		ostream_put_int (OSTREAM (lcd), rand);
 
 		mutex_unlock (&lcdlock);
@@ -74,9 +75,14 @@ uint8_t unlock0 (void* obj)
 
 void blink (void* obj)
 {
+	static mutex_t m;
+
 	while (1) {
-		system_sleep (397);
+		system_sleep (system_rand ());
+
+		mutex_lock (&m);
 		gpio_toggle (GPIO_PIN7);
+		mutex_unlock (&m);
 	}
 }
 
@@ -92,15 +98,15 @@ int main (void)
 				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
 	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, LCD4X20);
 	
-	static uint8_t st [101];
+	static uint8_t st [201];
 	static thread_t thr;
 
-	thread_exec (thread, NULL, "thread", &thr, st, 100);
-	thread_run_alloc (blink, NULL, "blink", 40);
-	thread_run_alloc (blink, NULL, "blink", 40);
-	thread_run_alloc (blink, NULL, "blink", 40);
-	thread_run_alloc (blink, NULL, "blink", 40);
-	thread_run_alloc (blink, NULL, "blink", 40);
+	thread_exec (thread, NULL, "thread", &thr, st, 200);
+	thread_run_alloc (blink, NULL, "blink", 80);
+	thread_run_alloc (blink, NULL, "blink", 80);
+	thread_run_alloc (blink, NULL, "blink", 80);
+	thread_run_alloc (blink, NULL, "blink", 80);
+	thread_run_alloc (blink, NULL, "blink", 80);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
@@ -118,11 +124,6 @@ int main (void)
 
 		system_sleep (1500);
 		gpio_toggle (GPIO_PIN7);
-
-		system_yield ();
-
-		if (system_get_time () > 110000)
-			break;
 	}
 	
 	return 0;

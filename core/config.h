@@ -25,7 +25,7 @@
 
 
 /* timer freq multiplier */
-#define __system_timer_x2__
+//#define __system_timer_x2__
 
 
 /* use xmemalloc instead memalloc as default */
@@ -46,7 +46,7 @@
 #define SYSTEM_STACK_SIZE	64
 
 /* fixed size of heap on which dynamic memory is allocated */
-#define HEAP_SIZE		768
+#define HEAP_SIZE		1280
 
 
 
