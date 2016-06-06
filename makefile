@@ -10,7 +10,8 @@ FCPU		= 14745600
 
 ############################
 
-SRC		= ${shell find . -name '*.[cS]' -or -name '*.cxx'}
+MAIN		= main.c
+SRC		= ${shell find . -name '*.[cS]' -or -name '*.cxx' | grep -v ${MAIN}}
 INC		= ${shell find . -name '*.h' | grep -v inc}
 OBJ		= ${SRC:./%=obj/%.o}
 DEP		= ${OBJ:%.o=%.d}
@@ -79,7 +80,7 @@ ${HEX}: ${ELF}
 	@echo CP $@
 	@${CP} -j .text -j .data -O ihex $< $@
 
-${ELF}: ${OBJ}
+${ELF}: ${OBJ} obj/${MAIN}.o
 	@echo LD $@
 	@${LD} $^ -o $@ ${LDFLAGS}
 

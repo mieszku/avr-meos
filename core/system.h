@@ -5,6 +5,8 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
 
+#include <inttypes.h>
+
 extern uint8_t	rand_seed		(void);
 
 uint32_t	system_get_time		(void);
