@@ -95,8 +95,8 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 		ret
 
 	__hwport_enable:
-		ldi	r26,	OCIE2
-		sts	TIMSK,	r26
+		ldi	r24,	OCIE2
+		sts	TIMSK,	r24
 		ret
 	
 	__hwport_disable:
@@ -151,11 +151,11 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 		reti
 	
 	__hwport_sync_clock:
-		lds	r27,	TCNT1H
-		lds	r26,	TCNT1L
-		subi	r26,	3
-		sts	OCR1BH,	r27
-		sts	OCR1BL,	r26
+		lds	r25,	TCNT1H
+		lds	r24,	TCNT1L
+		subi	r24,	3
+		sts	OCR1BH,	r25
+		sts	OCR1BL,	r24
 		ret
 	
 	__hwport_get_tick:
@@ -173,8 +173,8 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 		ret
 	
 	__hwport_enable:
-		ldi	r26,	OCIE1B
-		sts	TIMSK,	r26
+		ldi	r24,	OCIE1B
+		sts	TIMSK,	r24
 		ret
 	
 	__hwport_disable:
