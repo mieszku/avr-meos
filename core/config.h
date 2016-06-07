@@ -31,7 +31,7 @@
 
 
 /* use xmemalloc instead memalloc as default */
-#define __xmemalloc_default__
+//#define __xmemalloc_default__
 
 
 

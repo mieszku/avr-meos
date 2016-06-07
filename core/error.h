@@ -5,10 +5,6 @@
 #ifndef __ERROR_H
 #define __ERROR_H
 
-#include <inttypes.h>
-
-typedef uint8_t error_t;
-
 #define ERROR_STACK_SMASH	0x01
 #define ERROR_XMEMALLOC		0x02
 #define ERROR_PURE_VIRTUAL	0x03

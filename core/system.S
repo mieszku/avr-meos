@@ -86,16 +86,18 @@ rtmp	= 0
 		push	r29
 		movw	r28,	r24
 		rcall	_get_time
+		add	r22,	r28
+		adc	r23,	r29
+		adc	r24,	rnull
+		adc	r25,	rnull
+		pop	r29
+		pop	r28
 		push	r10
 		push	r11
 		push	r12
 		push	r13
 		movw	r10,	r22
 		movw	r12,	r24
-		add	r10,	r28
-		adc	r11,	r29
-		adc	r12,	rnull
-		adc	r13,	rnull
 	.Lsleep:
 		rcall	_get_time
 		cp	r22,	r10
@@ -110,8 +112,6 @@ rtmp	= 0
 		pop	r12
 		pop	r11
 		pop	r10
-		pop	r29
-		pop	r28
 		ret
 
 	system_yield:
