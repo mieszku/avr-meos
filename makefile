@@ -4,18 +4,21 @@
 
 PROJ		= meos
 PORT		= /dev/ttyACM0
-PROG		= arduino
-MCU		= atmega328p
-FCPU		= 16000000
+PROG		= usbasp 
+MCU		= atmega32
+FCPU		= 14745600
 
 ############################
 
-SRC		= ${shell find . -name '*.[cS]' -or -name '*.cxx'}
+MAIN		= main.c
+SRC		= ${shell find . -name '*.[cS]' -or -name '*.cxx' | grep -v ${MAIN}}
+INC		= ${shell find . -name '*.h' | grep -v inc}
 OBJ		= ${SRC:./%=obj/%.o}
 DEP		= ${OBJ:%.o=%.d}
 
 ELF		= ${PROJ}.elf
 HEX		= ${PROJ}.hex
+LIB		= lib${PROJ}.a
 
 DEFS		= F_CPU=${FCPU}
 INCLUDE		= . core drivers hardware cxxdrivers
@@ -37,7 +40,7 @@ DUDE		= avrdude -F -V -P ${PORT}
 
 ############################
 
-.PHONY: all clean hex elf flash size
+.PHONY: all clean hex elf flash size lib
 
 
 
@@ -46,6 +49,8 @@ all: elf
 elf: ${ELF}
 
 hex: ${HEX}
+
+lib: ${LIB}
 
 clean:
 	@echo CLEAN
@@ -58,14 +63,24 @@ flash: ${HEX}
 size: ${ELF}
 	@echo SIZE $<
 	@${SIZE} $< -B
-	
+
+cpinc:
+	@echo CPINC
+	@rm inc/ -rf
+	@mkdir inc/
+	@cp -t inc/ ${INC} -f
+
+${LIB}: ${OBJ}
+	@echo AR
+	@rm -f ${LIB}
+	@ar -rcs $@ $^
 
 
 ${HEX}: ${ELF}
 	@echo CP $@
 	@${CP} -j .text -j .data -O ihex $< $@
 
-${ELF}: ${OBJ}
+${ELF}: ${OBJ} obj/${MAIN}.o
 	@echo LD $@
 	@${LD} $^ -o $@ ${LDFLAGS}
 
