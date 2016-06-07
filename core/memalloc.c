@@ -58,7 +58,6 @@ static inline void rm_header (struct header *h)
 	h->next->prev = h->prev;
 }
 
-__attribute__ ((section (".init7"), naked))
 static void _init (void)
 {
 	root->next = (void*) heap;

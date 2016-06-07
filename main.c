@@ -13,6 +13,7 @@
 #include "core/system.h"
 #include "core/task.h"
 #include "core/mutex.h"
+#include "core/memalloc.h"
 
 #include <util/delay.h>
 #include <stdlib.h>
@@ -88,7 +89,7 @@ void blink (void* obj)
 
 int main (void)
 {
-	system_sleep (1000);
+	system_init ();
 
 	gpio_mode (GPIO_PIN13, GPIO_OUTPUT);
 	gpio_mode (GPIO_PIN7, GPIO_OUTPUT);
@@ -124,6 +125,8 @@ int main (void)
 
 		system_sleep (1500);
 		gpio_toggle (GPIO_PIN7);
+
+		memfree (memalloc (system_rand ()));
 	}
 	
 	return 0;
