@@ -271,7 +271,8 @@ current	= thread_current
 		out	sph,	r25
 
 		pop_context_const
-		call	__system_awake
+		call	__hwport_enable
+		call	__hwport_clr_int
 		pop_context_volatile
 		reti
 	

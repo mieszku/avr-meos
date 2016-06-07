@@ -12,9 +12,9 @@ rnull	= 1
 .global __hwport_sync_clock
 .global __hwport_get_tick
 .global	__hwport_get_int
+.global __hwport_clr_int
 .global __hwport_enable
 .global __hwport_disable
-.global __hwport_callback
 
 .global	__vector_11
 .global __vector_12
@@ -97,11 +97,11 @@ PRESC	= 1
 		reti
 	
 	__hwport_sync_clock:
-		lds	r27,	TCNT1H
-		lds	r26,	TCNT1L
-		subi	r26,	3
-		sts	OCR1BH,	r27
-		sts	OCR1BL,	r26
+		lds	r25,	TCNT1H
+		lds	r24,	TCNT1L
+		subi	r24,	3
+		sts	OCR1BH,	r25
+		sts	OCR1BL,	r24
 		ret
 	
 	__hwport_get_tick:
@@ -117,13 +117,19 @@ PRESC	= 1
 		sts	TIFR1,	r25
 		and	r24,	r25
 		ret
+	
+	__hwport_clr_int:
+		ldi	r24,	OCF1B
+		sts	TIFR1,	r24
+		ret
 
 	__hwport_enable:
-		ldi	r26,	OCIE1B
-		sts	TIMSK1,	r26
+		ldi	r24,	OCIE1B
+		sts	TIMSK1,	r24
 		ret
 	
 	__hwport_disable:
+		clr	rnull
 		sts	TIMSK1,	rnull
 		ret
 	

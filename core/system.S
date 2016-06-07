@@ -164,10 +164,6 @@ rtmp	= 0
 		sbc	r24,	r22
 		ret
 
-	__system_awake:
-		call	__hwport_enable
-		jmp	__hwport_get_int
-
 	__system_update_time:
 		call	__hwport_get_tick
 		cpse	r24,	rnull
