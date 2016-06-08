@@ -76,19 +76,15 @@ uint8_t unlock0 (void* obj)
 
 void blink (void* obj)
 {
-	//static mutex_t m;
-
 	while (1) {
 		system_sleep (system_rand ());
-
-		//mutex_lock (&m);
-		//mutex_unlock (&m);
 	}
 }
 
 int main (void)
 {
 	system_init ();
+	system_sleep (500);
 
 	gpio_mode (GPIO_PIN13, GPIO_OUTPUT);
 	gpio_mode (GPIO_PIN7, GPIO_OUTPUT);
