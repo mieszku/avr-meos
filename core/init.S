@@ -21,9 +21,16 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 	sysstack:
 		.zero	STSIZ
 
+
+.global system_init
+
+.section .fini8
+	call	thread_kill
+
 .section .text
 	_systhread:
 		call	__task_handle
+		call	system_yield
 		rjmp	_systhread
 
 	system_init:

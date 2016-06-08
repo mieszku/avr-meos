@@ -59,6 +59,8 @@ void		hd44780lcd_put_char	(hd44780lcd_t*		object,
 static void	hd44780lcd_set_position	(hd44780lcd_t*		object,
 					 uint8_t		posy,
 					 uint8_t		posx);
+static uint8_t	hd44780lcd_get_y	(hd44780lcd_t*		object);
+static uint8_t	hd44780lcd_get_x	(hd44780lcd_t*		object);
 
 #include "hd44780lcd.impl.h"
 
