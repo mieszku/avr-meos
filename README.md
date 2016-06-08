@@ -8,20 +8,11 @@ other things.
 Currently it supports only ATmega32 using timer1 or timer0 and timer2, and ATmega328p
 using timer1 but it would works as well on one of the lower resolution timers.
 
-#about code
-
 In general, most significant code was written in assembler avoiding hardware-depends 
 functions, that were moved to assembler files called 'ports', each for one specific
 microcontroller.
 Each port have to implement functions to initialize system timer, synchronize
 thread yield clock, get tick/int flag, clear int flag and enable/disable interrupts.
-
-Port have to do:
--set tick flag every one tick cycle
--set yield int flag when interrupts was previously disabled, or
- directly generate interrupt and call __system_clock otherwise.
-The default clock period is 1 millisecond, but it could be
-multiplexed by 2, 4 or even 8 depending on specific macros.
 
 #config file and system clock
 
