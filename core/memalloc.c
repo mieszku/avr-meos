@@ -15,7 +15,7 @@
 	#undef memalloc
 #endif
 
-#define ALLOC_ATTEMPTS	16
+#define ALLOC_ATTEMPTS	4
 #define OVERLAP		(sizeof (struct header) - sizeof (uint16_t))
 
 #ifndef NULL
@@ -81,6 +81,8 @@ static void* try_alloc (uint16_t size)
 	struct header* ch;
 	struct header* h;
 
+	mutex_lock (&mutex);
+
 	ch = NULL;
 	h = root->next;
 
@@ -91,8 +93,10 @@ static void* try_alloc (uint16_t size)
 		h = h->next;
 	}
 
-	if (ch == NULL)
+	if (ch == NULL) {
+		mutex_unlock (&mutex);
 		return NULL;
+	}
 
 	rm_header (ch);
 	
@@ -102,6 +106,8 @@ static void* try_alloc (uint16_t size)
 		ch->size = size;
 		add_header (h);
 	}
+
+	mutex_unlock (&mutex);
 
 	return ((void*) ch) + sizeof (uint16_t);
 }
@@ -114,19 +120,14 @@ void* memalloc (uint16_t size)
 	if (size > OVERLAP)
 		size -= OVERLAP;
 
-	while (attempts) {
-		mutex_lock (&mutex);
-
+	do {
 		mem = try_alloc (size);
-
-		mutex_unlock (&mutex);
 		
 		if (mem)
 			break;
 
 		system_yield ();
-		attempts--;
-	}
+	} while (--attempts);
 
 	return mem;
 }

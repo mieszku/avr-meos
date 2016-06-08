@@ -122,10 +122,14 @@ int main (void)
 	
 		mutex_unlock (&lcdlock);
 
-		system_sleep (1500);
-		gpio_toggle (GPIO_PIN7);
+		system_sleep (750);
 
-		memfree (memalloc (system_rand ()));
+		void* mem = memalloc (1);
+		if (mem) {
+			gpio_toggle (GPIO_PIN7);
+		} else {
+			system_sleep (750);
+		}
 	}
 	
 	return 0;
