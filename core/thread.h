@@ -24,7 +24,6 @@ struct thread_t
 } __attribute__ ((packed));
 
 extern const thread_t* const 	thread_current;
-extern const thread_t		thread_main;
 
 thread_t*	thread_exec		(thread_func_t	run,
 					 void*		obj,

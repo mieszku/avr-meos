@@ -14,4 +14,16 @@ void hd44780lcd_set_position (hd44780lcd_t* this,
 	this->_posx = posx;
 }
 
+static inline
+uint8_t hd44780lcd_get_y (hd44780lcd_t* this)
+{
+	return this->_posy;
+}
+
+static inline
+uint8_t hd44780lcd_get_x (hd44780lcd_t* this)
+{
+	return this->_posx;
+}
+
 #endif

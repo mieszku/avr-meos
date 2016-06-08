@@ -246,6 +246,6 @@ void memfree (void* mem)
 	mutex_unlock (&mutex);
 
 	while (_defrag ());
-	/* useless on fixed size heap */
+	/* useless on fixed size heap and don't know whether it works */
 	/* while (_sort ()); */
 }
