@@ -132,7 +132,7 @@ int main (void)
 		mutex_unlock (&lcdlock);
 
 		void* mem = memalloc (100);
-		thread_t* t = thread_run_alloc (toggle7, mem, "toggle7", 20);
+		thread_run_alloc (toggle7, mem, "toggle7", 20);
 		system_sleep (500);
 	}
 	
