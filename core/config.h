@@ -48,7 +48,7 @@
 #define SYSTEM_STACK_SIZE	64
 
 /* fixed size of heap on which dynamic memory is allocated */
-#define HEAP_SIZE		1280
+#define HEAP_SIZE		768
 
 
 

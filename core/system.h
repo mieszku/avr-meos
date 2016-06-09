@@ -7,6 +7,10 @@
 
 #include <inttypes.h>
 
+#include "thread.h"
+
+extern const thread_t system_thread;
+
 void		system_init		(void) __attribute__ ((naked));
 
 uint8_t		rand_seed		(void);

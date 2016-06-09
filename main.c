@@ -14,6 +14,7 @@
 #include "core/task.h"
 #include "core/mutex.h"
 #include "core/memalloc.h"
+#include "core/panic.h"
 
 #include <util/delay.h>
 #include <stdlib.h>
@@ -99,14 +100,12 @@ int main (void)
 
 	thread_exec (thread, NULL, "thread", &thr, st, 200);
 	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
-	thread_run_alloc (blink, NULL, "blink", 80);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
 	task_register (unlock0, NULL, 5000, 500);
+	
+	uint32_t i = 0;
 		
 	while (1) {
 		mutex_lock (&lcdlock);
@@ -115,18 +114,59 @@ int main (void)
 		ostream_put_string (OSTREAM (lcd), thread_current->name);
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
-	
+
+		void* mem = xmemalloc (1);
+
+		ostream_put_string (OSTREAM (lcd), "; ");
+		i += memalloc_real_size (mem);
+		ostream_put_uint32 (OSTREAM (lcd), i);
+
 		mutex_unlock (&lcdlock);
+		gpio_toggle (GPIO_PIN7);
 
-		system_sleep (750);
-
-		void* mem = memalloc (1);
-		if (mem) {
-			gpio_toggle (GPIO_PIN7);
-		} else {
-			system_sleep (750);
-		}
+		system_sleep (75);
 	}
 	
 	return 0;
 }
+
+void panic (error_t err)
+{
+	hd44780lcd_clear (lcd);
+	hd44780lcd_set_position (lcd, 0, 0);
+	ostream_put_string (OSTREAM (lcd), "panic: ");
+	hd44780lcd_set_position (lcd, 1, 0);
+
+	const char* strerr;
+
+	switch (err) {
+	case ERROR_STACK_SMASH:
+		strerr = "STACK SMASH";
+		break;
+	case ERROR_PURE_VIRTUAL:
+		strerr = "PURE VIRTUAL";
+		break;
+	case ERROR_XMEMALLOC:
+		strerr = "XMEMALLOC";
+		break;
+	case ERROR_INVALID_ARGUMENT:
+		strerr = "INVALID ARGUMENT";
+		break;
+	default:
+		strerr = "UNKNOWN ERROR";
+		break;
+	}
+
+	ostream_put_string (OSTREAM (lcd), strerr);
+
+	hd44780lcd_set_position (lcd, 2, 0);
+	ostream_put_string (OSTREAM (lcd), "thread: ");
+	ostream_put_string (OSTREAM (lcd), thread_current->name);
+	system_sleep (2000);
+
+	while (1) {
+		gpio_toggle (GPIO_PIN13);
+		system_sleep (25);
+	}
+}
+

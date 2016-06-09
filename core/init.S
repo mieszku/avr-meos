@@ -5,27 +5,22 @@
 #include "thread.S.h"
 #include "config.h"
 
-.global	system_init
-.extern	__task_handle
-
 STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
+
+.global system_thread
 
 .section .data
 	sysname:
 		.asciz	"system"
 	
 .section .noinit
-	systhread:
+	system_thread:
 		.zero	THR_SIZE
 	
 	sysstack:
 		.zero	STSIZ
 
-
-.global system_init
-
-.section .fini8
-	call	thread_kill
+.global	system_init
 
 .section .text
 	_systhread:
@@ -40,8 +35,8 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 		ldi	r25,	hi8(gs(_systhread))
 		ldi	r20,	lo8(sysname)
 		ldi	r21,	hi8(sysname)
-		ldi	r18,	lo8(systhread)
-		ldi	r19,	hi8(systhread)
+		ldi	r18,	lo8(system_thread)
+		ldi	r19,	hi8(system_thread)
 		ldi	r16,	lo8(sysstack)
 		ldi	r17,	hi8(sysstack)
 		ldi	r26,	lo8(STSIZ)

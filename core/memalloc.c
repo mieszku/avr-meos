@@ -15,7 +15,7 @@
 	#undef memalloc
 #endif
 
-#define ALLOC_ATTEMPTS	4
+#define ALLOC_ATTEMPTS	64
 #define OVERLAP		(sizeof (struct header) - sizeof (uint16_t))
 
 #ifndef NULL
@@ -31,8 +31,7 @@ struct header
 __attribute__ ((packed));
 
 
-/* .noinit section generates warning */
-static uint8_t heap [HEAP_SIZE] __attribute__ ((section (".bss")));
+static uint8_t heap [HEAP_SIZE];
 
 struct header* 			_root [2];
 static struct header* const 	root = (void*) _root;
@@ -67,7 +66,7 @@ static void _init (void)
 	
 	((struct header*) hptr)->next = root;
 	((struct header*) hptr)->prev = root;
-	((struct header*) hptr)->size = HEAP_SIZE - sizeof (struct header);
+	((struct header*) hptr)->size = HEAP_SIZE - sizeof (uint16_t);
 }
 
 void __memalloc_reset (void)
@@ -78,51 +77,53 @@ void __memalloc_reset (void)
 
 static void* try_alloc (uint16_t size)
 {
-	struct header* ch;
-	struct header* h;
-
 	mutex_lock (&mutex);
 
-	ch = NULL;
-	h = root->next;
+	struct header* ptr = root->next;
+	struct header* best = NULL;
 
-	while (h != root) {
-		if (h->size >= size && (!ch || h->size < ch->size))
-			ch = h;
+	while (ptr != root) {
+		if (ptr->size >= size &&
+			(best == NULL || ptr->size < best->size))
+		{
+			best = ptr;
+		}
 
-		h = h->next;
+		ptr = ptr->next;
 	}
 
-	if (ch == NULL) {
+	if (best == NULL) {
 		mutex_unlock (&mutex);
 		return NULL;
 	}
 
-	rm_header (ch);
-	
-	if (ch->size > size + sizeof (struct header)) {
-		h = ((void*) ch) + size + sizeof (struct header);
-		h->size = ch->size - size - sizeof (struct header);
-		ch->size = size;
-		add_header (h);
+	rm_header (best);
+
+	if (best->size > size + sizeof (struct header)) {
+		ptr = ((void*) best) + sizeof (uint16_t) + size;
+		ptr->size = best->size - sizeof (uint16_t) - size;
+		best->size = size;
+		add_header (ptr);
 	}
 
 	mutex_unlock (&mutex);
 
-	return ((void*) ch) + sizeof (uint16_t);
+	return ((void*) best) + sizeof (uint16_t);
 }
 
 void* memalloc (uint16_t size)
 {
-	void* 	mem;
-	uint8_t	attempts = ALLOC_ATTEMPTS;
+	void*	mem;
+	uint8_t	attempts;
 
-	if (size > OVERLAP)
-		size -= OVERLAP;
+	attempts = ALLOC_ATTEMPTS;
+
+	if (size < OVERLAP)
+		size = OVERLAP;
 
 	do {
 		mem = try_alloc (size);
-		
+
 		if (mem)
 			break;
 
