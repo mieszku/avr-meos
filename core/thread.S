@@ -121,7 +121,6 @@ current	= thread_current
 		.word	0	; sptr
 		.word	0	; spnd
 		.byte	0	; flags
-		.byte	0	; pending
 		.word	mainname
 	
 	thread_current:
@@ -134,6 +133,7 @@ current	= thread_current
 .global	__thread_yield
 
 .section .text
+		; NOTE: thread_exec takes flag in r26
 	thread_exec:
 		;	r24-r25:	run
 		;	r22-r23:	obj
@@ -149,16 +149,18 @@ current	= thread_current
 		movw	r10,	r22
 		movw	r12,	r24
 
+		push	r26	; push flag
+		call	__hwport_disable
+
 		movw	r26,	r16
 		add	r26,	r14
 		adc	r27,	r15
 		sbiw	r26,	1
 
-		call	system_enter_critical
-
 		rcall	_fork
 		cpse	r26,	rnull
 		rjmp	.Lchild
+		pop	r26	; pop flag
 
 		movw	r28,	r18
 		subi	r16,	lo8(-STC_MARGIN)
@@ -170,15 +172,18 @@ current	= thread_current
 		std	Y+OFF_SPNDH,	r17
 		std	Y+OFF_NAMEL,	r20
 		std	Y+OFF_NAMEH,	r21
-		std	Y+OFF_FLAG,	rnull
+		std	Y+OFF_FLAG,	r26
 
-		movw	r24,	r18
+		movw	r24,	r28
 		rcall	_insert_node
-		movw	r24,	r18
 
+		call	__hwport_enable
+		call	__hwport_clr_int
+
+		movw	r24,	r28
 		pop	r29
 		pop	r28
-		jmp	system_exit_critical
+		ret
 	.Lchild:
 		movw	r30,	r12
 		movw	r24,	r10
@@ -215,14 +220,21 @@ current	= thread_current
 		ret
 
 	thread_kill:
-		ret
-		/*
 		call	system_yield
 
 		lds	r24,	current
 		lds	r25,	current+1
 		movw	r28,	r24
 		rcall	_remove_node
+
+		ldd	r30,	Y+OFF_NEXTL
+		ldd	r31,	Y+OFF_NEXTH
+		ldd	r26,	Z+OFF_SPTRL
+		ldd	r27,	Z+OFF_SPTRH
+		sts	current,	r30
+		sts	current+1,	r31
+		out	spl,	r26
+		out	sph,	r27
 
 		; free flag check
 		ldd	r18,	Y+OFF_FLAG
@@ -234,19 +246,9 @@ current	= thread_current
 	.Lnofree:
 		; free flag check
 
-		ldd	r30,	Y+OFF_NEXTL
-		ldd	r31,	Y+OFF_NEXTH
-		ldd	r24,	Z+OFF_SPTRL
-		ldd	r25,	Z+OFF_SPTRH
-		sts	current,	r30
-		sts	current+1,	r31
-		cli
-		out	spl,	r24
-		out	sph,	r25
-		call	system_sei
 		pop_context
-		jmp	__system_awake
-		*/
+		reti
+
 
 	__thread_yield:
 		push_context

@@ -31,7 +31,7 @@
 
 
 /* use xmemalloc instead memalloc as default */
-//#define __xmemalloc_default__
+#define __xmemalloc_default__
 
 
 
@@ -48,7 +48,7 @@
 #define SYSTEM_STACK_SIZE	64
 
 /* fixed size of heap on which dynamic memory is allocated */
-#define HEAP_SIZE		768
+#define HEAP_SIZE		1024
 
 
 

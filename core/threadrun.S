@@ -16,6 +16,7 @@ EXTRA	= THR_SIZE+CTX_SIZE+STC_MARGIN
 	thread_run:
 		push	r14
 		push	r15
+
 		subi	r16,	lo8(THR_SIZE)
 		sbci	r17,	hi8(THR_SIZE)
 		movw	r14,	r16
@@ -23,6 +24,7 @@ EXTRA	= THR_SIZE+CTX_SIZE+STC_MARGIN
 		subi	r16,	lo8(-THR_SIZE)
 		sbci	r17,	hi8(-THR_SIZE)
 		call	thread_exec
+
 		pop	r15
 		pop	r14
 		ret
@@ -58,23 +60,21 @@ EXTRA	= THR_SIZE+CTX_SIZE+STC_MARGIN
 		pop	r21
 		pop	r20
 
+		ldi	r26,	FLAG_FREE
 		call	thread_run
-		movw	r30,	r24
-		ldd	r18,	Z+OFF_FLAG
-		ori	r18,	FLAG_FREE
-		std	Z+OFF_FLAG,	r18
 
 		pop	r17
 		pop	r16
 		ret
 		
 	.Lallocfailed:
-		pop	r0
-		pop	r0
-		pop	r0
-		pop	r0
-		pop	r0
-		pop	r0
+		pop	r25
+		pop	r24
+		pop	r23
+		pop	r22
+		pop	r21
+		pop	r20
+
 		pop	r17
 		pop	r16
 		ret
