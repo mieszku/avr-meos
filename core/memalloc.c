@@ -115,6 +115,7 @@ static void* try_alloc (uint16_t size)
 
 void* memalloc (uint16_t size)
 {
+	return try_alloc (size < OVERLAP ? OVERLAP : size);
 	void*	mem;
 	uint8_t	attempts;
 
@@ -182,8 +183,6 @@ uint16_t memalloc_real_size (void* mem)
 
 static uint8_t _defrag (void)
 {
-	mutex_lock (&memmtx);
-
 	struct header* 	h = root->next;
 	uint8_t 	opt = 0;
 
@@ -208,8 +207,6 @@ static uint8_t _defrag (void)
 		h = h->next;
 	}
 
-	mutex_unlock (&memmtx);
-
 	return opt;
 }
 
@@ -220,7 +217,7 @@ void memfree (void* mem)
 	struct header* h1 = mem - sizeof (uint16_t);
 	add_header (h1);
 
-	mutex_unlock (&memmtx);
-
 	while (_defrag ());
+
+	mutex_unlock (&memmtx);
 }
