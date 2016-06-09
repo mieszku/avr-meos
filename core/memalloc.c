@@ -191,14 +191,14 @@ static uint8_t _defrag (void)
 		struct header* h2 = h->next;
 
 		while (h2 != root) {
-			if (h2 == ((void*) h) + h->size + sizeof (struct header)) {
+			if (h2 == ((void*) h) + h->size + sizeof (uint16_t)) {
 				rm_header (h2);
-				h->size += h2->size + sizeof (struct header);
+				h->size += h2->size + sizeof (uint16_t);
 				opt = 0xFF;
 			} else 
-			if (h == ((void*) h2) + h2->size + sizeof (struct header)) {
+			if (h == ((void*) h2) + h2->size + sizeof (uint16_t)) {
 				rm_header (h);
-				h2->size += h->size + sizeof (struct header);
+				h2->size += h->size + sizeof (uint16_t);
 				opt = 0xFF;
 			}
 

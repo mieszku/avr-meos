@@ -115,16 +115,22 @@ int main (void)
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
 
-		void* mem = memrealloc (NULL, 1);
+		void* mem = memrealloc (NULL, i);
 
 		if (mem == NULL)
-			xmemalloc (100);
+			mem = xmemalloc (1);
+		else
+			memfree (mem);
 
 		ostream_put_string (OSTREAM (lcd), "; ");
-		i += memalloc_real_size (mem);
-		ostream_put_uint32 (OSTREAM (lcd), i);
+		ostream_put_uint32 (OSTREAM (lcd), i++);
+
+		hd44780lcd_set_position (lcd, 3, 10);
+		ostream_put_uint32 (OSTREAM (lcd), mem);
+
 
 		mutex_unlock (&lcdlock);
+
 		gpio_toggle (GPIO_PIN7);
 
 		system_sleep (75);
@@ -172,4 +178,3 @@ void panic (error_t err)
 		system_sleep (25);
 	}
 }
-
