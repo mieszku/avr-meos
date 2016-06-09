@@ -24,18 +24,19 @@
 
 struct header
 {
+	uint16_t	size;
 	struct header	*next;
 	struct header	*prev;
-	uint16_t	size;
 } 
 __attribute__ ((packed));
 
 
 static uint8_t heap [HEAP_SIZE];
 
-struct header* 			_root [2];
-static struct header* const 	root = (void*) _root;
-static mutex_t			mutex;
+static mutex_t			memmtx;
+static struct header* 		_root [2];
+
+#define root			((struct header* const) (((void*) _root) - sizeof (uint16_t)))
 
 static inline void ins_header (struct header* restrict p,
 			       struct header* restrict n)
@@ -48,7 +49,12 @@ static inline void ins_header (struct header* restrict p,
 
 static inline void add_header (struct header *h)
 {
-	ins_header (root, h);
+	struct header* ptr = root->next;
+
+	while (ptr != root && ptr < h)
+		ptr = ptr->next;
+
+	ins_header (ptr, h);
 }
 
 static inline void rm_header (struct header *h)
@@ -57,27 +63,23 @@ static inline void rm_header (struct header *h)
 	h->next->prev = h->prev;
 }
 
-static void _init (void)
+void __memalloc_reset (void)
 {
 	root->next = (void*) heap;
 	root->prev = (void*) heap;
 
-	void* const hptr = heap;
+	struct header* hptr = (struct header*) heap;
 	
-	((struct header*) hptr)->next = root;
-	((struct header*) hptr)->prev = root;
-	((struct header*) hptr)->size = HEAP_SIZE - sizeof (uint16_t);
-}
+	hptr->next = root;
+	hptr->prev = root;
+	hptr->size = HEAP_SIZE - sizeof (uint16_t);
 
-void __memalloc_reset (void)
-{
-	_init ();
-	mutex_unlock (&mutex);
+	mutex_unlock (&memmtx);
 }
 
 static void* try_alloc (uint16_t size)
 {
-	mutex_lock (&mutex);
+	mutex_lock (&memmtx);
 
 	struct header* ptr = root->next;
 	struct header* best = NULL;
@@ -93,7 +95,7 @@ static void* try_alloc (uint16_t size)
 	}
 
 	if (best == NULL) {
-		mutex_unlock (&mutex);
+		mutex_unlock (&memmtx);
 		return NULL;
 	}
 
@@ -106,7 +108,7 @@ static void* try_alloc (uint16_t size)
 		add_header (ptr);
 	}
 
-	mutex_unlock (&mutex);
+	mutex_unlock (&memmtx);
 
 	return ((void*) best) + sizeof (uint16_t);
 }
@@ -173,7 +175,6 @@ void* memrealloc (void* oldmem, uint16_t newsize)
 	return newmem;
 }
 
-__attribute__ ((pure))
 uint16_t memalloc_real_size (void* mem)
 {
 	return ((struct header*) (mem - sizeof (uint16_t)))->size;
@@ -181,7 +182,7 @@ uint16_t memalloc_real_size (void* mem)
 
 static uint8_t _defrag (void)
 {
-	mutex_lock (&mutex);
+	mutex_lock (&memmtx);
 
 	struct header* 	h = root->next;
 	uint8_t 	opt = 0;
@@ -207,46 +208,19 @@ static uint8_t _defrag (void)
 		h = h->next;
 	}
 
-	mutex_unlock (&mutex);
-
-	return opt;
-}
-
-__attribute__ ((unused))
-static uint8_t _sort (void)
-{
-	uint16_t opt = 0;
-
-	mutex_lock (&mutex);
-
-	struct header* h = root->next;
-	struct header* const end = root->prev;
-
-	while (h != end) {
-		__auto_type next = h->next;
-
-		if (next < h) {
-			rm_header (h);
-			ins_header (next, h);
-			opt = 0xFF;
-		}
-	}
-
-	mutex_unlock (&mutex);
+	mutex_unlock (&memmtx);
 
 	return opt;
 }
 
 void memfree (void* mem)
 {
-	mutex_lock (&mutex);
+	mutex_lock (&memmtx);
 
 	struct header* h1 = mem - sizeof (uint16_t);
 	add_header (h1);
 
-	mutex_unlock (&mutex);
+	mutex_unlock (&memmtx);
 
 	while (_defrag ());
-	/* useless on fixed size heap and don't know whether it works */
-	/* while (_sort ()); */
 }

@@ -15,15 +15,21 @@ extern "C" {
 
 void*		memalloc		(uint16_t 	size)
 		__attribute__ ((malloc));
+
 void*		xmemalloc		(uint16_t	size)
 		__attribute__ ((malloc));
+
 void*		memcalloc		(uint16_t	num,
 					 uint16_t	size)
 		__attribute__ ((malloc));
+
 void*		memrealloc		(void*    	mem,
 					 uint16_t 	newsize)
 		__attribute__ ((malloc));
-uint16_t	memalloc_real_size	(void* 	  	mem);
+
+uint16_t	memalloc_real_size	(void* 	  	mem)
+		__attribute__ ((pure));
+
 void		memfree			(void* 	  	mem);
 
 #ifdef __cplusplus

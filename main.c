@@ -115,7 +115,10 @@ int main (void)
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
 
-		void* mem = xmemalloc (1);
+		void* mem = memrealloc (NULL, 1);
+
+		if (mem == NULL)
+			xmemalloc (100);
 
 		ostream_put_string (OSTREAM (lcd), "; ");
 		i += memalloc_real_size (mem);
