@@ -2,7 +2,8 @@
 ; Copyright (c) 2016 Mieszko Mazurek
 ;
 
-#include "thread.S.h"
+#include "threadcfg.h"
+#include "error.h"
 
 spl	= 0x3D
 sph	= 0x3E
@@ -263,6 +264,18 @@ current	= thread_current
 		in	r23,	sph
 		lds	r28,	current
 		lds	r29,	current+1
+
+		; stack smash check
+		ldd	r8,	Y+OFF_SPNDL
+		ldd	r9,	Y+OFF_SPNDH
+		cp	r22,	r8
+		cpc	r23,	r9
+		brsh	.Lnosmash
+		ldi	r24,	ERROR_STACK_SMASH
+		clr	r25
+		jmp	enter_panic
+	.Lnosmash:
+		; stack smash check
 
 		std	Y+OFF_SPTRL,	r22
 		std	Y+OFF_SPTRH,	r23

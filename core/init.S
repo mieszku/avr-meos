@@ -2,7 +2,7 @@
 ; Copyright (c) 2016 Mieszko Mazurek
 ;
 
-#include "thread.S.h"
+#include "threadcfg.h"
 #include "config.h"
 
 STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STACK_MARGIN

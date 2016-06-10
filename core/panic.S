@@ -2,7 +2,7 @@
 ; Copyright (c) 2016 Mieszko Mazurek
 ;
 
-#include "thread.S.h"
+#include "threadcfg.h"
 
 rnull	= 1
 

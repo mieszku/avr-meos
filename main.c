@@ -15,7 +15,6 @@
 #include "core/mutex.h"
 #include "core/memalloc.h"
 #include "core/panic.h"
-#include "core/thread.S.h"
 
 #include <util/delay.h>
 #include <stdlib.h>
@@ -108,11 +107,11 @@ int main (void)
 				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
 	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, LCD4X20);
 	
-	static uint8_t st [180];
+	static uint8_t st [120];
 	static thread_t thr;
 
-	thread_exec (thread, NULL, "thread", &thr, st, 180);
-	thread_run_alloc (blink, NULL, "blink", 30);
+	thread_exec (thread, NULL, "thread", &thr, st, sizeof (st));
+	thread_run_alloc (blink, NULL, "blink", 50);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
@@ -136,9 +135,6 @@ int main (void)
 		void* mem = memalloc (100);
 		thread_run_alloc (toggle7, mem, "toggle7", 20);
 		system_sleep (500);
-
-		if (i++ > 10)
-			enter_panic (ERROR_INVALID_ARGUMENT);
 	}
 	
 	return 0;

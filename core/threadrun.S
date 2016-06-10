@@ -3,7 +3,7 @@
 ;
 
 #include "config.h"
-#include "thread.S.h"
+#include "threadcfg.h"
 
 rnull	= 1
 
