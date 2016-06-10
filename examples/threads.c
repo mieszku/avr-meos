@@ -16,7 +16,7 @@ void blink13 (void* obj)
 		gpio_toggle (GPIO_PIN13);
 
 		// You can even use _delay_ms but in most cases
-		// it don't works properly with threads, 
+		// it doesn't works properly with threads, 
 		// so it's better to use system_sleep instead
 		_delay_ms (400);
 		//system_sleep (400);
