@@ -117,8 +117,6 @@ int main (void)
 	
 	task_register (unlock0, NULL, 2000, 500);
 	
-
-	int i = 0;
 		
 	while (1) {
 		mutex_lock (&lcdlock);
