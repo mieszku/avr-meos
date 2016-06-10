@@ -9,6 +9,10 @@
 
 #include "thread.h"
 
+#ifndef NULL
+	#define NULL	((void*) 0)
+#endif
+
 extern const thread_t system_thread;
 
 void		system_init		(void) __attribute__ ((naked));

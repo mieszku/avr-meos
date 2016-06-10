@@ -3,26 +3,26 @@
 ;
 
 #include "config.h"
-#include "thread.S.h"
+#include "threadcfg.h"
 
 rnull	= 1
 
 .global	thread_run
 .global	thread_run_alloc
 
-EXTRA	= THR_SIZE+CTX_SIZE+STC_MARGIN
+EXTRA	= THREAD_SIZE+CTX_SIZE+STACK_MARGIN
 
 .section .text
 	thread_run:
 		push	r14
 		push	r15
 
-		subi	r16,	lo8(THR_SIZE)
-		sbci	r17,	hi8(THR_SIZE)
+		subi	r16,	lo8(THREAD_SIZE)
+		sbci	r17,	hi8(THREAD_SIZE)
 		movw	r14,	r16
 		movw	r16,	r18
-		subi	r16,	lo8(-THR_SIZE)
-		sbci	r17,	hi8(-THR_SIZE)
+		subi	r16,	lo8(-THREAD_SIZE)
+		sbci	r17,	hi8(-THREAD_SIZE)
 		call	thread_exec
 
 		pop	r15
@@ -60,7 +60,9 @@ EXTRA	= THR_SIZE+CTX_SIZE+STC_MARGIN
 		pop	r21
 		pop	r20
 
+		call	system_enter_critical
 		ldi	r26,	FLAG_FREE
+		sts	__thread_flags,	r26
 		call	thread_run
 
 		pop	r17

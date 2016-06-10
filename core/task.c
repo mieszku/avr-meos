@@ -76,7 +76,9 @@ void __task_handle (void)
 		mutex_lock (&mutex);
 
 		if (heap->period) {
+			mutex_unlock (&mutex);
 			loop = heap->func (heap->object);
+			mutex_lock (&mutex);
 		} else {
 			loop = 0;
 			heap->func (heap->object);

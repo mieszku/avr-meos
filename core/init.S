@@ -2,10 +2,10 @@
 ; Copyright (c) 2016 Mieszko Mazurek
 ;
 
-#include "thread.S.h"
+#include "threadcfg.h"
 #include "config.h"
 
-STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
+STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STACK_MARGIN
 
 .global system_thread
 
@@ -15,7 +15,7 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 	
 .section .noinit
 	system_thread:
-		.zero	THR_SIZE
+		.zero	THREAD_SIZE
 	
 	sysstack:
 		.zero	STSIZ
@@ -29,6 +29,7 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STC_MARGIN
 		rjmp	_systhread
 
 	system_init:
+		call	__panic_init
 		call	__hwport_init
 		call	__memalloc_reset
 		ldi	r24,	lo8(gs(_systhread))

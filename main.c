@@ -15,7 +15,6 @@
 #include "core/mutex.h"
 #include "core/memalloc.h"
 #include "core/panic.h"
-#include "core/thread.S.h"
 
 #include <util/delay.h>
 #include <stdlib.h>
@@ -75,7 +74,7 @@ uint8_t flg;
 
 void toggle7 (void* obj)
 {
-	flg = thread_current->_flag;
+	flg = thread_current->_flags;
 
 	gpio_toggle (GPIO_PIN7);
 	if (obj) 
@@ -108,16 +107,18 @@ int main (void)
 				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
 	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, LCD4X20);
 	
-	static uint8_t st [180];
+	static uint8_t st [120];
 	static thread_t thr;
 
-	thread_exec (thread, NULL, "thread", &thr, st, 180);
-	thread_run_alloc (blink, NULL, "blink", 30);
+	thread_exec (thread, NULL, "thread", &thr, st, sizeof (st));
+	thread_run_alloc (blink, NULL, "blink", 50);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
 	task_register (unlock0, NULL, 2000, 500);
 	
+
+	int i = 0;
 		
 	while (1) {
 		mutex_lock (&lcdlock);

@@ -115,7 +115,7 @@ static void* try_alloc (uint16_t size)
 
 void* memalloc (uint16_t size)
 {
-	return try_alloc (size < OVERLAP ? OVERLAP : size);
+	//return try_alloc (size < OVERLAP ? OVERLAP : size);
 	void*	mem;
 	uint8_t	attempts;
 
