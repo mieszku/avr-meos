@@ -98,4 +98,26 @@ mutex_unlock (&mtx);
 
 #panic mode
 
-It wasn't done yet.
+Sometimes when something goes wrong, for example memalloc failed without checking return
+value, or one thread stack was smashed, panic mode could be very helpful. Entering to
+panic mode disables all threads except current one and system thread. Then stack pointer is
+safely restored to value saved at initialization, and panic handler is called.
+panic function (prototype below) shall be implemented by default like main. It takes
+only error code which can be used to detect what happened. Possible error codes are defined
+in core/error.h. Panic mode keeps last thread_current state, so it also can be used as a hint
+to qualify what/where/when went wrong. Two most often panic errors are xmemalloc fail and stack
+smash. First shows that there was no enough memory to allocate desired block, and second
+that during last thread switch, stack pointer exceed admissible limit. After panic handler
+return, it falls into infinite loop.
+
+void panic (error_t err)
+{
+	switch (err) {
+	case ERROR_XMEMALLOC: break;
+	case ERROR_STACK_SMASH: break;
+	case ERROR_PURE_VIRTUAL: break;
+	case ERROR_INVALID_ARGUMENT: break;
+	default:
+		// unknown error
+	}
+}
