@@ -104,6 +104,7 @@ rnull	= 1
 
 .global	thread_current
 .global	thread_main
+.global __thread_flags
 
 current	= thread_current
 
@@ -125,6 +126,9 @@ current	= thread_current
 	
 	thread_current:
 		.word	thread_main
+	
+	__thread_flags:
+		.byte	0
 
 
 .global	thread_exec
@@ -149,8 +153,7 @@ current	= thread_current
 		movw	r10,	r22
 		movw	r12,	r24
 
-		push	r26	; push flag
-		call	__hwport_disable
+		call	system_enter_critical
 
 		movw	r26,	r16
 		add	r26,	r14
@@ -160,25 +163,25 @@ current	= thread_current
 		rcall	_fork
 		cpse	r26,	rnull
 		rjmp	.Lchild
-		pop	r26	; pop flag
 
 		movw	r28,	r18
-		subi	r16,	lo8(-STC_MARGIN)
-		sbci	r17,	hi8(-STC_MARGIN)
+		subi	r16,	lo8(-STACK_MARGIN)
+		sbci	r17,	hi8(-STACK_MARGIN)
 
+		lds	r26,	__thread_flags
+		sts	__thread_flags,	rnull
 		std	Y+OFF_SPTRL,	r30
 		std	Y+OFF_SPTRH,	r31
 		std	Y+OFF_SPNDL,	r16
 		std	Y+OFF_SPNDH,	r17
 		std	Y+OFF_NAMEL,	r20
 		std	Y+OFF_NAMEH,	r21
-		std	Y+OFF_FLAG,	r26
+		std	Y+OFF_FLAGS,	r26
 
 		movw	r24,	r28
 		rcall	_insert_node
 
-		call	__hwport_enable
-		call	__hwport_clr_int
+		call	system_exit_critical
 
 		movw	r24,	r28
 		pop	r29
@@ -237,7 +240,7 @@ current	= thread_current
 		out	sph,	r27
 
 		; free flag check
-		ldd	r18,	Y+OFF_FLAG
+		ldd	r18,	Y+OFF_FLAGS
 		andi	r18,	FLAG_FREE
 		tst	r18
 		breq	.Lnofree

@@ -17,7 +17,7 @@ struct thread_t
 	thread_t* const		_prev;
 	void* const		_sptr;
 	void* const 		_spnd;
-	const uint8_t		_flag;
+	const uint8_t		_flags;
 
 	const char* const	name;
 } __attribute__ ((packed));

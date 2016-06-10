@@ -75,7 +75,7 @@ uint8_t flg;
 
 void toggle7 (void* obj)
 {
-	flg = thread_current->_flag;
+	flg = thread_current->_flags;
 
 	gpio_toggle (GPIO_PIN7);
 	if (obj) 

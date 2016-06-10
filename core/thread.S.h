@@ -6,12 +6,12 @@
 #define OFF_PREV	 0x2
 #define OFF_SPTR	 0x4
 #define OFF_SPND	 0x6
-#define OFF_FLAG	 0x8
+#define OFF_FLAGS	 0x8
 #define OFF_NAME	 0x9
 
 #define CTX_SIZE	 35
-#define THR_SIZE	 11
-#define STC_MARGIN	 15
+#define THREAD_SIZE	 11
+#define STACK_MARGIN	 15
 
 #define OFF_NEXTL	 OFF_NEXT
 #define OFF_NEXTH	 OFF_NEXT+1
