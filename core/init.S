@@ -29,6 +29,7 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STACK_MARGIN
 		rjmp	_systhread
 
 	system_init:
+		call	__panic_init
 		call	__hwport_init
 		call	__memalloc_reset
 		ldi	r24,	lo8(gs(_systhread))

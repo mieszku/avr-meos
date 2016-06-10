@@ -9,12 +9,7 @@ rnull	= 1
 spl	= 0x3D
 sph	= 0x3E
 
-;.global __panic_mode
-
 .section .bss
-	__panic_mode:
-		.byte	0
-	
 	panic_sp:
 		.word	0
 
@@ -24,7 +19,7 @@ sph	= 0x3E
 .section .text
 	enter_panic:
 		movw	r2,	r24
-		call	__hwport_disable
+		call	system_enter_critical
 		ldi	r30,	lo8(system_thread)
 		ldi	r31,	hi8(system_thread)
 		lds	r28,	thread_current
@@ -37,7 +32,11 @@ sph	= 0x3E
 		std	Y+OFF_NEXTH,	r31
 		std	Y+OFF_PREVL,	r30
 		std	Y+OFF_PREVH,	r31
-		call	__hwport_enable
+		lds	r4,	panic_sp
+		lds	r5,	panic_sp+1
+		out	spl,	r4
+		out	sph,	r5
+		call	system_exit_critical
 		movw	r24,	r2
 		call	panic
 	.Lloop:
@@ -48,5 +47,4 @@ sph	= 0x3E
 		in	r25,	sph
 		sts	panic_sp,	r24
 		sts	panic_sp+1,	r25
-		sts	__panic_mode,	rnull
 		ret

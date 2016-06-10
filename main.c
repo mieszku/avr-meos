@@ -118,6 +118,8 @@ int main (void)
 	
 	task_register (unlock0, NULL, 2000, 500);
 	
+
+	int i = 0;
 		
 	while (1) {
 		mutex_lock (&lcdlock);
@@ -134,6 +136,9 @@ int main (void)
 		void* mem = memalloc (100);
 		thread_run_alloc (toggle7, mem, "toggle7", 20);
 		system_sleep (500);
+
+		if (i++ > 10)
+			enter_panic (ERROR_INVALID_ARGUMENT);
 	}
 	
 	return 0;
