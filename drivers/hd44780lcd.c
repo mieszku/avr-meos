@@ -33,15 +33,17 @@ void hd44780lcdvt_init (hd44780lcdvt_t* vtable)
 
 
 hd44780lcd_t* hd44780lcd_new (hd44780itf_t* interface,
+			      uint8_t	    itfmode,
 			      lcd_type_t    lcd_type)
 {
 	hd44780lcd_t* instance = xmemalloc (sizeof (hd44780lcd_t));
-	hd44780lcd_construct (instance, interface, lcd_type);
+	hd44780lcd_construct (instance, interface, itfmode, lcd_type);
 	return instance;
 }
 
 void hd44780lcd_construct (hd44780lcd_t* this,
 			   hd44780itf_t* interface,
+			   uint8_t	 itfmode,
 			   lcd_type_t	 lcd_type)
 {
 	ostream_construct (&this->ostream);
@@ -66,7 +68,7 @@ void hd44780lcd_construct (hd44780lcd_t* this,
 	}
 	
 	hd44780_function_set (&this->_hd44780,
-			      INTERFACE_MODE_4BIT,
+			      itfmode,
 			      LINE_MODE_TWOLINE,
 			      MATRIX_5X7);
 	hd44780_display_set (&this->_hd44780,

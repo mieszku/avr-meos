@@ -46,9 +46,11 @@ struct hd44780lcdvt_t
 void		hd44780lcdvt_init	(hd44780lcdvt_t*	vtable);
 
 hd44780lcd_t*	hd44780lcd_new		(hd44780itf_t*		interface,
+					 uint8_t		itfmode,
 					 lcd_type_t		lcd);
 void		hd44780lcd_construct	(hd44780lcd_t*		object,
 					 hd44780itf_t*		interface,
+					 uint8_t		itfmode,
 					 lcd_type_t		lcd);
 void		hd44780lcd_destruct	(hd44780lcd_t*		object);
 

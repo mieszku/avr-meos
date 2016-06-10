@@ -105,7 +105,7 @@ int main (void)
 	lcditf = hd44780gpio_new (GPIO_PIN2, GPIO_PIN3, GPIO_PIN4,
 				  0, 0, 0, 0,
 				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
-	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, LCD4X20);
+	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, INTERFACE_MODE_4BIT, LCD4X20);
 	
 	static uint8_t st [120];
 	static thread_t thr;
