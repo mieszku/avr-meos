@@ -6,7 +6,7 @@ rnull	= 1
 
 #include <config.h>
 
-#ifdef 	__atmega328p__
+#ifdef 	__AVR_ATmega328P__
 
 .global __hwport_init
 .global __hwport_sync_clock
@@ -19,65 +19,60 @@ rnull	= 1
 .global	__vector_11
 .global __vector_12
 
-#if	defined __system_timer_x2__
-	OCRA	= ((F_CPU/1000/PRESC/2)-1)
-#elif	defined __system_timer_x4__
-	OCRA	= ((F_CPU/1000/PRESC/4)-1)
-#elif	defined __system_timer_x8__
-	OCRA	= ((F_CPU/1000/PRESC/8)-1)
-#else
-	OCRA	= ((F_CPU/1000/PRESC)-1)
-#endif
-
-#if	(__system_timer__ == 0)
-	
-TCCR0A	= 0x44
-TCCR0B	= 0x45
-TCNT0	= 0x46
-OCR0A	= 0x47
-OCR0B	= 0x48
-TIMSK0	= 0x6E
-TIFR0	= 0x35
-
-CS00	= 0x01
-CS01	= 0x02
-CS02	= 0x04
-WGM00	= 0x01
-WGM01	= 0x02
-WGM02	= 0x08
-OCIE0A	= 0x02
-OCIE0B	= 0x04
-OCF1A	= 0x02
-OCF1B	= 0x04
-
-#elif	(__system_timer__ == 1)
-
-TCCR1A	= 0x80
-TCCR1B	= 0x81
-TCCR1C	= 0x82
-TCNT1L	= 0x84
-TCNT1H	= 0x85
-OCR1AL	= 0x88
-OCR1AH	= 0x89
-OCR1BL	= 0x8A
-OCR1BH	= 0x8B
-TIMSK1	= 0x6F
-TIFR1	= 0x36
-
-CS10	= 0x01
-CS11	= 0x02
-CS12	= 0x04
-WGM10	= 0x01
-WGM11	= 0x02
-WGM12	= 0x08
-OCIE1A	= 0x02
-OCIE1B	= 0x04
-OCF1A	= 0x02
-OCF1B	= 0x04
-
-PRESC	= 1
+OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 
 .section .text
+
+#if	__system_timer__ == 0
+		
+	TCCR0A	= 0x44
+	TCCR0B	= 0x45
+	TCNT0	= 0x46
+	OCR0A	= 0x47
+	OCR0B	= 0x48
+	TIMSK0	= 0x6E
+	TIFR0	= 0x35
+
+	CS00	= 0x01
+	CS01	= 0x02
+	CS02	= 0x04
+	WGM00	= 0x01
+	WGM01	= 0x02
+	WGM02	= 0x08
+	OCIE0A	= 0x02
+	OCIE0B	= 0x04
+	OCF1A	= 0x02
+	OCF1B	= 0x04
+
+	; TODO
+
+#elif	__system_timer__ == 1
+
+	TCCR1A	= 0x80
+	TCCR1B	= 0x81
+	TCCR1C	= 0x82
+	TCNT1L	= 0x84
+	TCNT1H	= 0x85
+	OCR1AL	= 0x88
+	OCR1AH	= 0x89
+	OCR1BL	= 0x8A
+	OCR1BH	= 0x8B
+	TIMSK1	= 0x6F
+	TIFR1	= 0x36
+
+	CS10	= 0x01
+	CS11	= 0x02
+	CS12	= 0x04
+	WGM10	= 0x01
+	WGM11	= 0x02
+	WGM12	= 0x08
+	OCIE1A	= 0x02
+	OCIE1B	= 0x04
+	OCF1A	= 0x02
+	OCF1B	= 0x04
+
+	PRESC	= 1
+
 	__hwport_init:
 		ldi	r18,	WGM12|CS10
 		sts	TCCR1A,	rnull

@@ -5,15 +5,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * keep all definitions below commented or not
- */
-
-/* MCU definition */
-#define __atmega328p__
-//#define __atmega32__
-
-
 /* specific platform */
 #define __arduino_uno__
 
@@ -25,14 +16,13 @@
 
 
 /* timer freq multiplier */
-#define __system_timer_x2__
-//#define __system_timer_x4__
-//#define __system_timer_x8__
-
+//#define __system_timer_mult__	1
+//#define __system_timer_mult__	2
+#define __system_timer_mult__	4
+//#define __system_timer_mult__	8
 
 /* use xmemalloc instead memalloc as default */
 #define __xmemalloc_default__
-
 
 
 
@@ -54,59 +44,31 @@
 
 
 
-/* DONT EDIT ASSERTION INSTRUCTIONS BELOW */
-
-#ifdef __atmega328p__
-	#define __mcu_defined__
-#endif
-#ifdef __atmega32__
-	#ifdef __mcu_defined__
-		#error please define only one mcu
-	#endif
-	#define __mcu_defined__
-#endif
-
-#ifndef __mcu_defined__
-	#define please define one mcu
-#endif
 
 #ifndef __system_timer__
-	#error please define one of possible system timer
+	#error __system_timer__ was not defined
 #endif
 
 #ifndef MAX_TASKS
-	#error please define MAX_TASKS
+	#error MAX_TASKS was not defined
 #elif !defined SYSTEM_STACK_SIZE
-	#error please define SYSTEM_STACK_SIZE
+	#error SYSTEM_STACK_SIZE was not defined
 #elif !defined HEAP_SIZE
-	#error please define HEAP_SIZE
+	#error HEAP_SIZE was not defined
 #endif
 
 #ifdef __xmemalloc_default__
 	#define memalloc xmemalloc
 #endif
 
-#ifdef __system_timer_x2__
-	#define __system_timer_mult__	2
-	#define __system_timer_mul_defined__
-#endif
-#ifdef __system_timer_x4__
-	#ifdef __system_timer_mul_defined__
-		#error only one system clock multiplier can be defined
-	#endif
-	#define __system_timer_mult__	4
-	#define __system_timer_mul_defined__
-#endif
-#ifdef __system_timer_x8__
-	#ifdef __system_timer_mul_defined__
-		#error only one system clock multiplier can be defined
-	#endif
-	#define __system_timer_mult__	8
-	#define __system_timer_mul_defined__
-#endif
 
-#ifdef __system_timer_mul_defined__
-	#undef __system_timer_mul_defined__
+#ifdef __system_timer_mult__
+	#if 	__system_timer_mult__ != 1 &&\
+		__system_timer_mult__ != 2 &&\
+		__system_timer_mult__ != 4 &&\
+		__system_timer_mult__ != 8
+		#error	__system_timer_mult__ must be equal 1, 2, 4 or 8
+	#endif
 #else
 	#define __system_timer_mult__	1
 #endif
