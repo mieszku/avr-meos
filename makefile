@@ -10,7 +10,7 @@ FCPU		= 16000000
 
 ############################
 
-SRC		= ${shell find . -name '*.[cS]' -or -name '*.cxx' | grep -v examples}
+SRC		= ${shell find . -name '*.[cS]' -or -name '*.cxx' | grep -v 'examples\|ignore'}
 INC		= ${shell find . -name '*.h' | grep -v inc}
 OBJ		= ${SRC:./%=obj/%.o}
 DEP		= ${OBJ:%.o=%.d}
@@ -40,7 +40,6 @@ DUDE		= avrdude -F -V -P ${PORT}
 ############################
 
 .PHONY: all clean hex elf flash size lib
-
 
 
 all: elf
