@@ -8,6 +8,7 @@
 #include "drivers/ostream.h"
 
 #include "hardware/gpio.h"
+#include "hardware/adc.h"
 
 #include "core/thread.h"
 #include "core/system.h"
@@ -115,10 +116,12 @@ int main (void)
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
-	task_register (unlock0, NULL, 2000, 500);
+	task_register (unlock0, NULL, 2000, 2000);
 	
-		
 	while (1) {
+		uint16_t v = adc_read (ADC_PIN5);
+		adc_disable ();
+
 		mutex_lock (&lcdlock);
 
 		hd44780lcd_set_position (lcd, 2, 0);
@@ -126,7 +129,10 @@ int main (void)
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
 		ostream_put_string (OSTREAM (lcd), ", ");
-		ostream_put_int (OSTREAM (lcd), flg);
+		uint8_t x = hd44780lcd_get_x (lcd);
+		ostream_put_string (OSTREAM (lcd), "     ");
+		hd44780lcd_set_position (lcd, 2, x);
+		ostream_put_int (OSTREAM (lcd), v);
 
 		mutex_unlock (&lcdlock);
 
