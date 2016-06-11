@@ -4,7 +4,7 @@
 
 #include "config.h"
 
-#ifdef __atmega32__
+#ifdef __AVR_ATmega32__
 
 rnull	= 1
 
@@ -12,11 +12,6 @@ sreg 	= 0x3F
 
 TIMSK	= 0x59
 TIFR	= 0x58
-
-#if	__system_timer_mult__ > 2
-	#warning system timer multiplier greater than 2 \
-		may cause stability errors
-#endif
 
 OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 
@@ -26,10 +21,11 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 .global	__hwport_sync_clock
 .global __hwport_get_tick
 .global __hwport_get_int
+.global __hwport_clr_int
 .global __hwport_enable
 .global __hwport_disable
 
-.global	__vector_4
+.global __vector_4
 .global	__vector_8
 
 .section .text
@@ -92,6 +88,11 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 		lds	r24,	TIFR
 		sts	TIFR,	r25
 		and	r24,	r25
+		ret
+	
+	__hwport_clr_int:
+		ldi	r24,	OCF2
+		sts	TIFR,	r24
 		ret
 
 	__hwport_enable:
@@ -170,6 +171,11 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 		lds	r24,	TIFR
 		sts	TIFR,	r25
 		and	r24,	r25
+		ret
+	
+	__hwport_clr_int:
+		ldi	r24,	OCF1B
+		sts	TIFR,	r24
 		ret
 	
 	__hwport_enable:

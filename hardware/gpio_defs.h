@@ -12,13 +12,13 @@
 #define GPIO_LOW        0x000   
 #define GPIO_HIGH       0x001
 
-#ifdef __atmega328p__
+#ifdef __AVR_ATmega328P__
 	#define __gpio_portb__
 	#define __gpio_portc__
 	#define __gpio_portd__
 #endif
 
-#ifdef __atmega32__
+#ifdef __AVR_ATmega32__
 	#define __gpio_porta__
 	#define __gpio_portb__
 	#define __gpio_portc__

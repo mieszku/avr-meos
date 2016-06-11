@@ -1,4 +1,5 @@
 Copyright (c) 2016 Mieszko Mazurek
+mieszko392@yahoo.com
 
 avr meos is a 'simple' library for ATmega microcontrollers that main aim is to
 provide REAL threading system and some additional features like dedicated memory 
