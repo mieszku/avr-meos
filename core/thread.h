@@ -24,6 +24,10 @@ struct thread_t
 
 extern const thread_t* const 	thread_current;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 thread_t*	thread_exec		(thread_func_t	run,
 					 void*		obj,
 					 const char*	name,
@@ -40,5 +44,9 @@ thread_t*	thread_run_alloc	(thread_func_t	run,
 					 const char*	name,
 					 uint16_t	stsize);
 void		thread_kill	(void) __attribute__ ((noreturn));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

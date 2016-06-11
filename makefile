@@ -62,11 +62,12 @@ size: ${ELF}
 	@echo SIZE $<
 	@${SIZE} $< -B
 
-cpinc:
+cpinc: ${INC:./%.h=inc/%.h}
 	@echo CPINC
-	@rm inc/ -rf
-	@mkdir inc/
-	@cp -t inc/ ${INC} -f
+
+inc/%.h: %.h
+	@mkdir -p ${dir $@}
+	@cp -f $< $@
 
 ${LIB}: ${OBJ}
 	@echo AR
