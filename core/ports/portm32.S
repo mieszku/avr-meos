@@ -25,6 +25,7 @@ OCRA	= ((F_CPU/1000/PRESC/__system_timer_mult__)-1)
 .global __hwport_enable
 .global __hwport_disable
 
+.global __vector_4
 .global	__vector_8
 
 .section .text
