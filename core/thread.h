@@ -13,17 +13,17 @@ typedef struct thread_t thread_t;
 
 struct thread_t
 {
-	thread_t* const		_next;
-	thread_t* const		_prev;
-	void* const		_sptr;
-	void* const 		_spnd;
-	const uint8_t		_flags;
+	thread_t* 	_next;
+	thread_t* 	_prev;
+	void* 		_sptr;
+	void*  		_spnd;
+	uint8_t		_flags;
 
-	const char* const	name;
+	const char* 	name;
 } __attribute__ ((packed));
 
 extern const thread_t* const 	thread_current;
-extern const thread_t		thread_main;
+extern thread_t			thread_main;
 
 #ifdef __cplusplus
 extern "C" {

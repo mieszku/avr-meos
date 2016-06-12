@@ -10,6 +10,7 @@
 #include "mutex.h"
 #include "config.h"
 #include "panic.h"
+#include "threadcfg.h"
 
 #ifdef memalloc
 	#undef memalloc
@@ -104,12 +105,30 @@ void __memalloc_reset (void)
 
 static uint8_t enlarge_heap (uint16_t size)
 {
+	uint16_t blksize = size + 2;
 	struct header* ptr = memalloc_brk;
-	ptr->size = size;
-	memalloc_brk += size + 2;
-	add_header (ptr);
-	defrag ();
-	return 1;
+	void* newbrk = memalloc_brk + blksize;
+
+	if (thread_main._sptr - STACK_MARGIN > newbrk) {
+		thread_main._spnd = newbrk;
+		ptr->size = size;
+		add_header (ptr);
+
+		memalloc_brk = newbrk;
+		defrag ();
+		return 1;
+	}
+	return 0;
+}
+
+static inline void decrease_heap (void)
+{
+	struct header* last = root->prev;
+
+	if (((void*) last) + last->size + 2 == memalloc_brk) {
+		memalloc_brk -= last->size + 2;
+		rm_header (last);
+	}
 }
 
 static void* try_alloc (uint16_t size)
@@ -150,7 +169,6 @@ static void* try_alloc (uint16_t size)
 
 void* memalloc (uint16_t size)
 {
-	//return try_alloc (size < OVERLAP ? OVERLAP : size);
 	void*	mem;
 	uint8_t	attempts;
 
@@ -227,6 +245,7 @@ void memfree (void* mem)
 	add_header (h1);
 
 	while (defrag ());
+	decrease_heap ();
 
 	mutex_unlock (&memmtx);
 }

@@ -112,7 +112,14 @@ int main (void)
 	static thread_t thr;
 
 	thread_exec (thread, NULL, "thread", &thr, st, sizeof (st));
-	thread_run_alloc (blink, NULL, "blink", 50);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
 
 	thread_run_alloc (showrand, NULL, "rand", 90);
 	
