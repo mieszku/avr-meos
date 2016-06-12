@@ -23,6 +23,7 @@ struct thread_t
 } __attribute__ ((packed));
 
 extern const thread_t* const 	thread_current;
+extern const thread_t		thread_main;
 
 #ifdef __cplusplus
 extern "C" {

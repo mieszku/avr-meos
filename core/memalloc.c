@@ -22,6 +22,8 @@
 	#define NULL	((void*) 0)
 #endif
 
+extern uint8_t __heap_start;
+
 struct header
 {
 	uint16_t	size;
@@ -30,8 +32,7 @@ struct header
 } 
 __attribute__ ((packed));
 
-
-static uint8_t heap [HEAP_SIZE];
+void* memalloc_brk;
 
 static mutex_t			memmtx;
 static struct header* 		_root [2];
@@ -63,18 +64,52 @@ static inline void rm_header (struct header *h)
 	h->next->prev = h->prev;
 }
 
+static uint8_t defrag (void)
+{
+	struct header* 	h = root->next;
+	uint8_t 	opt = 0;
+
+	while (h != root) {
+		struct header* h2 = h->next;
+
+		while (h2 != root) {
+			if (h2 == ((void*) h) + h->size + sizeof (uint16_t)) {
+				rm_header (h2);
+				h->size += h2->size + sizeof (uint16_t);
+				opt = 0xFF;
+			} else 
+			if (h == ((void*) h2) + h2->size + sizeof (uint16_t)) {
+				rm_header (h);
+				h2->size += h->size + sizeof (uint16_t);
+				opt = 0xFF;
+			}
+
+			h2 = h2->next;
+		}
+
+		h = h->next;
+	}
+
+	return opt;
+}
+
 void __memalloc_reset (void)
 {
-	root->next = (void*) heap;
-	root->prev = (void*) heap;
+	root->next = root;
+	root->prev = root;
 
-	struct header* hptr = (struct header*) heap;
-	
-	hptr->next = root;
-	hptr->prev = root;
-	hptr->size = HEAP_SIZE - sizeof (uint16_t);
-
+	memalloc_brk = &__heap_start;
 	mutex_unlock (&memmtx);
+}
+
+static uint8_t enlarge_heap (uint16_t size)
+{
+	struct header* ptr = memalloc_brk;
+	ptr->size = size;
+	memalloc_brk += size + 2;
+	add_header (ptr);
+	defrag ();
+	return 1;
 }
 
 static void* try_alloc (uint16_t size)
@@ -130,6 +165,9 @@ void* memalloc (uint16_t size)
 		if (mem)
 			break;
 
+		if (enlarge_heap (size))
+			continue;
+
 		system_yield ();
 	} while (--attempts);
 
@@ -181,35 +219,6 @@ uint16_t memalloc_real_size (void* mem)
 	return ((struct header*) (mem - sizeof (uint16_t)))->size;
 }
 
-static uint8_t _defrag (void)
-{
-	struct header* 	h = root->next;
-	uint8_t 	opt = 0;
-
-	while (h != root) {
-		struct header* h2 = h->next;
-
-		while (h2 != root) {
-			if (h2 == ((void*) h) + h->size + sizeof (uint16_t)) {
-				rm_header (h2);
-				h->size += h2->size + sizeof (uint16_t);
-				opt = 0xFF;
-			} else 
-			if (h == ((void*) h2) + h2->size + sizeof (uint16_t)) {
-				rm_header (h);
-				h2->size += h->size + sizeof (uint16_t);
-				opt = 0xFF;
-			}
-
-			h2 = h2->next;
-		}
-
-		h = h->next;
-	}
-
-	return opt;
-}
-
 void memfree (void* mem)
 {
 	mutex_lock (&memmtx);
@@ -217,7 +226,7 @@ void memfree (void* mem)
 	struct header* h1 = mem - sizeof (uint16_t);
 	add_header (h1);
 
-	while (_defrag ());
+	while (defrag ());
 
 	mutex_unlock (&memmtx);
 }

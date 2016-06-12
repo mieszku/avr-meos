@@ -132,7 +132,7 @@ int main (void)
 		uint8_t x = hd44780lcd_get_x (lcd);
 		ostream_put_string (OSTREAM (lcd), "     ");
 		hd44780lcd_set_position (lcd, 2, x);
-		ostream_put_int (OSTREAM (lcd), v);
+		ostream_put_int (OSTREAM (lcd), (int) memalloc_brk);
 
 		mutex_unlock (&lcdlock);
 
