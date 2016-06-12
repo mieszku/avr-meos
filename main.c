@@ -47,7 +47,7 @@ void thread (void* obj)
 
 		mutex_unlock (&lcdlock);
 
-		thread_run_alloc (toggle13, NULL, "toggle 13", 20);
+		thread_run_alloc (toggle13, NULL, "toggle 13", 30);
 	}
 }
 
@@ -108,7 +108,7 @@ int main (void)
 				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
 	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, INTERFACE_MODE_4BIT, LCD4X20);
 	
-	static uint8_t st [120];
+	static uint8_t st [160];
 	static thread_t thr;
 
 	thread_exec (thread, NULL, "thread", &thr, st, sizeof (st));
@@ -137,7 +137,7 @@ int main (void)
 		mutex_unlock (&lcdlock);
 
 		void* mem = memalloc (100);
-		thread_run_alloc (toggle7, mem, "toggle7", 20);
+		thread_run_alloc (toggle7, mem, "toggle7", 30);
 		system_sleep (500);
 	}
 	

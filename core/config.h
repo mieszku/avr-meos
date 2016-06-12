@@ -18,7 +18,7 @@
 /* timer freq multiplier */
 //#define __system_timer_mult__	1
 //#define __system_timer_mult__	2
-#define __system_timer_mult__	4
+//#define __system_timer_mult__	4
 //#define __system_timer_mult__	8
 
 /* use xmemalloc instead memalloc as default */
@@ -35,10 +35,10 @@
 #define MAX_TASKS		16
 
 /* size of system stack */
-#define SYSTEM_STACK_SIZE	64
+#define SYSTEM_STACK_SIZE	32
 
 /* fixed size of heap on which dynamic memory is allocated */
-#define HEAP_SIZE		1024
+#define HEAP_SIZE		768
 
 
 
