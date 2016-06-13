@@ -118,17 +118,13 @@ int main (void)
 	thread_run_alloc (blink, NULL, "blink", 35);
 	thread_run_alloc (blink, NULL, "blink", 35);
 	thread_run_alloc (blink, NULL, "blink", 35);
-	thread_run_alloc (blink, NULL, "blink", 35);
-	thread_run_alloc (blink, NULL, "blink", 35);
 
-	thread_run_alloc (showrand, NULL, "rand", 90);
+	void* mem = memalloc (thread_mem_size (90));
+	thread_run (showrand, NULL, "rand", mem, memalloc_real_size (mem));
 	
 	task_register (unlock0, NULL, 2000, 2000);
 	
 	while (1) {
-		uint16_t v = adc_read (ADC_PIN5);
-		adc_disable ();
-
 		mutex_lock (&lcdlock);
 
 		hd44780lcd_set_position (lcd, 2, 0);

@@ -44,7 +44,11 @@ thread_t*	thread_run_alloc	(thread_func_t	run,
 					 void*		obj,
 					 const char*	name,
 					 uint16_t	stsize);
-void		thread_kill	(void) __attribute__ ((noreturn));
+void		thread_kill		(void) 
+		__attribute__ ((noreturn));
+
+uint16_t	thread_mem_size		(uint16_t	stacksiz)
+		__attribute__ ((const));
 
 #ifdef __cplusplus
 }

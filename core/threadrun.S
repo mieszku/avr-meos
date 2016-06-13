@@ -9,6 +9,7 @@ rnull	= 1
 
 .global	thread_run
 .global	thread_run_alloc
+.global thread_mem_size
 
 EXTRA	= THREAD_SIZE+CTX_SIZE+STACK_MARGIN
 
@@ -79,4 +80,8 @@ EXTRA	= THREAD_SIZE+CTX_SIZE+STACK_MARGIN
 
 		pop	r17
 		pop	r16
+		ret
+	
+	thread_mem_size:
+		adiw	r24,	EXTRA
 		ret
