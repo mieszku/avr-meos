@@ -8,6 +8,7 @@
 #include "drivers/ostream.h"
 
 #include "hardware/gpio.h"
+#include "hardware/adc.h"
 
 #include "core/thread.h"
 #include "core/system.h"
@@ -46,7 +47,7 @@ void thread (void* obj)
 
 		mutex_unlock (&lcdlock);
 
-		thread_run_alloc (toggle13, NULL, "toggle 13", 20);
+		thread_run_alloc (toggle13, NULL, "toggle 13", 30);
 	}
 }
 
@@ -107,17 +108,22 @@ int main (void)
 				  GPIO_PIN9, GPIO_PIN10, GPIO_PIN11, GPIO_PIN12);
 	lcd = hd44780lcd_new ((hd44780itf_t*) lcditf, INTERFACE_MODE_4BIT, LCD4X20);
 	
-	static uint8_t st [120];
+	static uint8_t st [160];
 	static thread_t thr;
 
 	thread_exec (thread, NULL, "thread", &thr, st, sizeof (st));
-	thread_run_alloc (blink, NULL, "blink", 50);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
+	thread_run_alloc (blink, NULL, "blink", 35);
 
-	thread_run_alloc (showrand, NULL, "rand", 90);
+	void* mem = memalloc (thread_mem_size (90));
+	thread_run (showrand, NULL, "rand", mem, memalloc_real_size (mem));
 	
-	task_register (unlock0, NULL, 2000, 500);
+	task_register (unlock0, NULL, 2000, 2000);
 	
-		
 	while (1) {
 		mutex_lock (&lcdlock);
 
@@ -126,14 +132,16 @@ int main (void)
 		ostream_put_string (OSTREAM (lcd), " : ");
 		ostream_put_uint32 (OSTREAM (lcd), system_get_time () * 5);
 		ostream_put_string (OSTREAM (lcd), ", ");
-		ostream_put_int (OSTREAM (lcd), flg);
+		uint8_t x = hd44780lcd_get_x (lcd);
+		ostream_put_string (OSTREAM (lcd), "     ");
+		hd44780lcd_set_position (lcd, 2, x);
+		ostream_put_int (OSTREAM (lcd), (int) memalloc_brk);
 
 		mutex_unlock (&lcdlock);
 
-		void* mem = realloc (NULL, 100);
-		thread_run_alloc (toggle7, mem, "toggle7", 20);
+		void* mem = memalloc (100);
+		thread_run_alloc (toggle7, mem, "toggle7", 30);
 		system_sleep (500);
-		free (calloc (5, 3));
 	}
 	
 	return 0;

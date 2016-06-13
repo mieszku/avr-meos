@@ -5,6 +5,9 @@
 #include "threadcfg.h"
 #include "config.h"
 
+rtmp	= 0
+rnull	= 1
+
 STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STACK_MARGIN
 
 .global system_thread
@@ -24,7 +27,11 @@ STSIZ	= SYSTEM_STACK_SIZE+CTX_SIZE+STACK_MARGIN
 
 .section .text
 	_systhread:
+		sts	system_int,	rnull
 		call	__task_handle
+		lds	r10,	system_int
+		cpse	r10,	rnull
+		rjmp	_systhread
 		call	system_yield
 		rjmp	_systhread
 

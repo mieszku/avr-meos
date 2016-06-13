@@ -258,8 +258,6 @@ current	= thread_current
 		push_context
 		clr	rnull
 
-		call	__system_update_time
-
 		in	r22,	spl
 		in	r23,	sph
 		lds	r28,	current
@@ -289,8 +287,7 @@ current	= thread_current
 		out	sph,	r25
 
 		pop_context_const
-		call	__hwport_enable
-		call	__hwport_clr_int
+		call	__system_awake
 		pop_context_volatile
 		reti
 	

@@ -38,12 +38,17 @@ rtmp	= 0
 	st	\ptr,	\rtmp
 .endm
 
+.global system_int
+
 .section .bss
 	systime:
 		.word	0
 		.word	0
 
 	tick:
+		.byte	0
+	
+	system_int:
 		.byte	0
 	
 .section .text
@@ -115,6 +120,8 @@ rtmp	= 0
 		ret
 
 	system_yield:
+		ser	r18
+		sts	system_int,	r18
 		call	__hwport_disable
 		call	__hwport_sync_clock
 		jmp	__thread_yield
@@ -163,6 +170,13 @@ rtmp	= 0
 		eor	r24,	r23
 		sbc	r24,	r22
 		ret
+
+	__system_awake:
+		ser	r18
+		sts	system_int,	r18
+		call	__hwport_enable
+		call	__hwport_clr_int
+		rjmp	__system_update_time
 
 	__system_update_time:
 		call	__hwport_get_tick

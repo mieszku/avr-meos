@@ -9,6 +9,8 @@
 
 #include "config.h"
 
+extern void*	memalloc_brk;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
