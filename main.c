@@ -78,7 +78,7 @@ void toggle7 (void* obj)
 
 	gpio_toggle (GPIO_PIN7);
 	if (obj) 
-		memfree (obj);
+		free (obj);
 }
 
 uint8_t unlock0 (void* obj)
@@ -130,9 +130,10 @@ int main (void)
 
 		mutex_unlock (&lcdlock);
 
-		void* mem = memalloc (100);
+		void* mem = realloc (NULL, 100);
 		thread_run_alloc (toggle7, mem, "toggle7", 20);
 		system_sleep (500);
+		free (calloc (5, 3));
 	}
 	
 	return 0;

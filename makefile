@@ -27,7 +27,8 @@ CFLAGS		+= -funsigned-char -fdata-sections
 CFLAGS_C	= ${CFLAGS} -std=gnu11
 CFLAGS_CXX	= ${CFLAGS} -std=gnu++11
 ASFLAGS		= ${addprefix -D, ${DEFS}} -mmcu=${MCU} ${addprefix -I, ${INCLUDE}}
-LDFLAGS		= -mmcu=${MCU} -Wl,--gc-sections -Tldscripts/avr5.xn 
+LDFLAGS		= -mmcu=${MCU} -Wl,--gc-sections -Tldscripts/avr5.x
+LDFLAGS		+= -Wl,-wrap,malloc,-wrap,free,-wrap,calloc,-wrap,realloc
 
 CC		= avr-gcc -c
 AS		= avr-gcc -c
